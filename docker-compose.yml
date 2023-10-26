@@ -1,0 +1,49 @@
+version: "3"
+
+networks:
+  qiyin-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: '177.8.0.0/16'
+        
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: qiyin-mysql
+    hostname: qiyin-mysql
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123123
+      - MYSQL_DATABASE=root
+      # - MYSQL_USER=root
+      # - MYSQL_PASSWORD=123123
+      # - MYSQL_MAX_LIFETIME=120
+      # - MYSQL_MAX_OPEN_CONNS=100
+      # - MYSQL_MAX_IDLE_CONNS=20
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      qiyin-network:
+        ipv4_address: 177.8.0.3
+
+  redis:
+    image: redis:latest
+    container_name: qiyin-redis
+    hostname: qiyin-redis
+    command: redis-server --requirepass qiyin
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      qiyin-network:
+        ipv4_address: 177.8.0.4
+
+volumes:
+  mysql_data:
+  redis_data:
