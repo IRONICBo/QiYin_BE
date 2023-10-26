@@ -1,0 +1,39 @@
+definitions:
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: QiYin Backend API Docs.
+  title: QiYin Backend
+  version: v0.0.0
+paths:
+  /api/v1/ping:
+    post:
+      description: Test API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Ping
+      tags:
+      - Ping
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization.
+    type: apiKey
+swagger: "2.0"

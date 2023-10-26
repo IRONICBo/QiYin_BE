@@ -1,0 +1,30 @@
+app:
+  version: 0.0.0
+  debug: true
+  log_file: logs/
+
+server:
+  ip: 127.0.0.1
+  port: 10010
+  max_file_size: 10
+
+jwt:
+  secret: qiyin
+  issuer: qiyin
+  expire_days: 1
+
+mysql:
+  ip: 177.8.0.3
+  port: 3306
+  username: root
+  password: 123123
+  database: qiyin
+  max_lifetime: 120
+  max_open_conns: 100
+  max_idle_conns: 20
+
+redis:
+  ip: 177.8.0.4
+  port: 6379
+  password: qiyin
+  database: 0
