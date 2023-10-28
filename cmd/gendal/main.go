@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 
+	"github.com/IRONICBo/QiYin_BE/internal/models/base"
 	"gorm.io/gen"
 )
 
@@ -19,6 +20,7 @@ func main() {
 	// Add tables here to generate
 	tables := []interface{}{
 		// Add your tables here.
+		base.UserBase{},
 	}
 
 	// Generate basic dao
