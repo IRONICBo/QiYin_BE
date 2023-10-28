@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/IRONICBo/QiYin_BE/internal/api"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -36,6 +37,8 @@ func InitRouter() *gin.Engine {
 	apiv1 := r.Group("/api/v1")
 	{
 		apiv1.GET("/ping")
+		apiv1.POST("/login", api.UserLogin)
+		apiv1.POST("/register", api.UserRegister)
 	}
 
 	return r

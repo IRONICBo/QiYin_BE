@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/IRONICBo/QiYin_BE/internal/dal/dao"
 
 	"github.com/IRONICBo/QiYin_BE/internal/config"
 	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
@@ -34,6 +35,7 @@ func main() {
 	// tables
 	tables := []interface{}{
 		// Add your tables here.
+		dao.User{},
 	}
 
 	// drop tables if exist.

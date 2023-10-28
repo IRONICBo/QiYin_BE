@@ -16,13 +16,13 @@ func GetUserUUID(c *gin.Context) (string, error) {
 	return "", errors.Errorf("get user uuid failed")
 }
 
-// GetCommunityUUID get community uuid from context.
-func GetCommunityUUID(c *gin.Context) (string, error) {
-	if claims, ok := c.Get("claims"); ok {
-		if c := claims.(*JwtClaims); c != nil {
-			return c.CommunityUUID, nil
-		}
-	}
-
-	return "", errors.Errorf("get community uuid failed")
-}
+//// GetCommunityUUID get community uuid from context.
+//func GetCommunityUUID(c *gin.Context) (string, error) {
+//	if claims, ok := c.Get("claims"); ok {
+//		if c := claims.(*JwtClaims); c != nil {
+//			return c.CommunityUUID, nil
+//		}
+//	}
+//
+//	return "", errors.Errorf("get community uuid failed")
+//}
