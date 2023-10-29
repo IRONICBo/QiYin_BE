@@ -61,11 +61,33 @@ type RedisClient interface {
 	HMSet(ctx context.Context, key string, values ...interface{}) *redis.BoolCmd
 
 	Watch(ctx context.Context, fn func(*redis.Tx) error, keys ...string) error
+
+	//	Set
+	SIsMember(ctx context.Context, key string, value string) *redis.BoolCmd
+	SAdd(ctx context.Context, key string, value string) *redis.IntCmd
+	SRem(ctx context.Context, key string, value string) *redis.IntCmd
+	SMembers(ctx context.Context, key string) *redis.IntCmd
 }
 
 // RealRedisClient implemented the RedisClient interface and used a real Redis client.
 type RealRedisClient struct {
 	client *redis.Client
+}
+
+func (r *RealRedisClient) SAdd(ctx context.Context, key string, value string) *redis.IntCmd {
+	return r.client.SAdd(ctx, key, value)
+}
+
+func (r *RealRedisClient) SRem(ctx context.Context, key string, value string) *redis.IntCmd {
+	return r.client.SRem(ctx, key, value)
+}
+
+func (r *RealRedisClient) SMembers(ctx context.Context, key string) *redis.IntCmd {
+	return r.client.SRem(ctx, key)
+}
+
+func (r *RealRedisClient) SIsMember(ctx context.Context, key string, value string) *redis.BoolCmd {
+	return r.client.SIsMember(ctx, key, value)
 }
 
 // Get get value.

@@ -36,6 +36,7 @@ func main() {
 	tables := []interface{}{
 		// Add your tables here.
 		dao.User{},
+		dao.Favorite{},
 	}
 
 	// drop tables if exist.

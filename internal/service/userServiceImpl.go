@@ -14,7 +14,17 @@ import (
 type UserServiceImpl struct {
 	Service
 	//FollowService
-	//LikeService
+	//FavoriteService
+}
+
+func (usi *UserServiceImpl) GetUserById(id int64) (User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (usi *UserServiceImpl) GetUserByIdWithCurId(id int64, curId int64) (User, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 // NewCommonService return new service with gin context.
@@ -122,11 +132,15 @@ func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*response
 
 	uuid := utils.GenUUID()
 	newUser := dao.User{
-		Name:      param.Name,
-		Password:  utils.EncryptPassword(param.Password),
-		Id:        uuid,
-		Avatar:    "",
-		Signature: "",
+		Name:           param.Name,
+		Password:       utils.EncryptPassword(param.Password),
+		Id:             uuid,
+		Avatar:         "",
+		Signature:      "",
+		FollowCount:    0,
+		FollowerCount:  0,
+		TotalFavorited: 0,
+		FavoriteCount:  0,
 	}
 	if usi.InsertTableUser(&newUser) != true {
 		return resp, errors.New("insert failed")
@@ -171,7 +185,7 @@ func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*response
 //	if err != nil {
 //		log.Println("Err:", err.Error())
 //	}
-//	u := GetLikeService() //解决循环依赖
+//	u := GetFavoriteService() //解决循环依赖
 //	totalFavorited, _ := u.TotalFavourite(id)
 //	favoritedCount, _ := u.FavouriteVideoCount(id)
 //	user = User{
@@ -216,7 +230,7 @@ func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*response
 //	if err != nil {
 //		log.Println("Err:", err.Error())
 //	}
-//	u := GetLikeService() //解决循环依赖
+//	u := GetFavoriteService() //解决循环依赖
 //	totalFavorited, _ := u.TotalFavourite(id)
 //	favoritedCount, _ := u.FavouriteVideoCount(id)
 //	user = User{
@@ -229,48 +243,4 @@ func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*response
 //		FavoriteCount:  favoritedCount,
 //	}
 //	return user, nil
-//}
-//
-//// GenerateToken 根据username生成一个token
-//func GenerateToken(username string) string {
-//	u := UserService.GetTableUserByUsername(new(UserServiceImpl), username)
-//	fmt.Printf("generatetoken: %v\n", u)
-//	token := NewToken(u)
-//	println(token)
-//	return token
-//}
-//
-//// NewToken 根据信息创建token
-//func NewToken(u dao.User) string {
-//	expiresTime := time.Now().Unix() + int64(config.OneDayOfHours)
-//	fmt.Printf("expiresTime: %v\n", expiresTime)
-//	id64 := u.Id
-//	fmt.Printf("id: %v\n", strconv.FormatInt(id64, 10))
-//	claims := jwt.StandardClaims{
-//		Audience:  u.Name,
-//		ExpiresAt: expiresTime,
-//		Id:        strconv.FormatInt(id64, 10),
-//		IssuedAt:  time.Now().Unix(),
-//		Issuer:    "tiktok",
-//		NotBefore: time.Now().Unix(),
-//		Subject:   "token",
-//	}
-//	var jwtSecret = []byte(config.Secret)
-//	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-//	if token, err := tokenClaims.SignedString(jwtSecret); err == nil {
-//		token = "Bearer " + token
-//		println("generate token success!\n")
-//		return token
-//	} else {
-//		println("generate token fail\n")
-//		return "fail"
-//	}
-//}
-//
-//// EnCoder 密码加密
-//func EnCoder(password string) string {
-//	h := hmac.New(sha256.New, []byte(password))
-//	sha := hex.EncodeToString(h.Sum(nil))
-//	fmt.Println("Result: " + sha)
-//	return sha
 //}

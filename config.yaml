@@ -14,17 +14,27 @@ jwt:
   expire_days: 1
 
 mysql:
-  ip: 177.8.0.3
+  ip: 127.0.0.1
+#  ip: 177.8.0.3
   port: 3306
   username: root
-  password: 123123
+#  password: 123123
+  password: password
   database: qiyin
   max_lifetime: 120
   max_open_conns: 100
   max_idle_conns: 20
 
 redis:
-  ip: 177.8.0.4
+#  ip: 177.8.0.4
+  ip: 127.0.0.1
   port: 6379
-  password: qiyin
+#  password: qiyin
+  password: password
   database: 0
+
+rabbitmq:
+  ip: 127.0.0.1
+  port: 5672
+  username: guest
+  password: guest

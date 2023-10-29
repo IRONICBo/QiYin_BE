@@ -19,6 +19,10 @@ type User struct {
 	Avatar          string `json:"avatar" gorm:"column:avatar"`
 	BackgroundImage string `json:"background_image" gorm:"column:background_image"`
 	Signature       string `json:"signature" gorm:"column:signature"`
+	FollowCount     int64  `json:"follow_count"`
+	FollowerCount   int64  `json:"follower_count"`
+	TotalFavorited  int64  `json:"total_favorited,omitempty"`
+	FavoriteCount   int64  `json:"favorite_count,omitempty"`
 }
 
 // TableName 修改表名映射

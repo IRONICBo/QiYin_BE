@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/IRONICBo/QiYin_BE/internal/middleware/rabbitmq"
 
 	"github.com/IRONICBo/QiYin_BE/internal/config"
 	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
@@ -23,6 +24,8 @@ func init() {
 	log.InitLogger()
 	db.InitMysqlDB()
 	db.InitRedisDB()
+	rabbitmq.InitRabbitMQ()
+	rabbitmq.InitFavoriteRabbitMQ()
 }
 
 //go:generate go env -w GO111MODULE=on

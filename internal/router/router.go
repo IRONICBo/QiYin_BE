@@ -39,6 +39,14 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/ping")
 		apiv1.POST("/login", api.UserLogin)
 		apiv1.POST("/register", api.UserRegister)
+
+		// 收藏
+		favorite := apiv1.Group("/favorite/")
+		{
+			// Register with email
+			favorite.POST("/action", api.FavoriteAction)
+			// register.POST("/github", api.GithubRegister)
+		}
 	}
 
 	return r

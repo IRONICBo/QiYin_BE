@@ -41,15 +41,22 @@ func ConfigInit(configPath string) {
 			Password: GetString("redis.password"),
 			Database: GetInt("redis.database"),
 		},
+		RabbitMQ: RabbitMQ{
+			Ip:       GetString("rabbitmq.ip"),
+			Port:     GetInt("rabbitmq.port"),
+			Username: GetString("rabbitmq.username"),
+			Password: GetString("rabbitmq.password"),
+		},
 	}
 }
 
 type config struct {
-	App    App
-	JWT    JWT
-	Server Server
-	Mysql  Mysql
-	Redis  Redis
+	App      App
+	JWT      JWT
+	Server   Server
+	Mysql    Mysql
+	Redis    Redis
+	RabbitMQ RabbitMQ
 }
 
 // App config.
@@ -91,4 +98,11 @@ type Redis struct {
 	Port     int    `mapstructure:"port"`
 	Password string `mapstructure:"password"`
 	Database int    `mapstructure:"database"`
+}
+
+type RabbitMQ struct {
+	Ip       string `mapstructure:"ip"`
+	Port     int    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
 }
