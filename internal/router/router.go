@@ -42,11 +42,21 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/register", api.UserRegister)
 		apiv1.GET("/userinfo", api.UserInfo)
 
-		// 收藏
+		// 点赞
 		favorite := apiv1.Group("/favorite/")
 		{
 			favorite.POST("/action", jwt.Auth(), api.FavoriteAction)
 		}
+
+		// 评论
+		comment := apiv1.Group("/comment/")
+		{
+			// 评论列表
+			comment.GET("/list", api.CommentList)
+			comment.POST("/delete", jwt.Auth(), api.CommentDelete)
+			comment.POST("/add", jwt.Auth(), api.CommentAdd)
+		}
+
 	}
 
 	return r

@@ -38,6 +38,7 @@ func main() {
 		dao.User{},
 		dao.Favorite{},
 		dao.Video{},
+		dao.Comment{},
 	}
 
 	// drop tables if exist.

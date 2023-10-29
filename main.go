@@ -26,6 +26,7 @@ func init() {
 	db.InitRedisDB()
 	rabbitmq.InitRabbitMQ()
 	rabbitmq.InitFavoriteRabbitMQ()
+	rabbitmq.InitCommentRabbitMQ()
 }
 
 //go:generate go env -w GO111MODULE=on
