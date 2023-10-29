@@ -60,3 +60,23 @@ func UserRegister(c *gin.Context) {
 
 	response.SuccessWithData(u, c)
 }
+
+// UserInfo
+// @Tags user
+// @Summary UserInfo
+// @Description Test API
+// @Produce application/json
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/userinfo [get].
+func UserInfo(c *gin.Context) {
+	userId := c.Query("userId")
+
+	svc := service.NewUserService(c)
+	u, err := svc.GetUserById(userId)
+	if err != nil {
+		log.Debug("user doesn't exit", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+	response.SuccessWithData(u, c)
+}

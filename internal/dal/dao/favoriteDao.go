@@ -21,8 +21,8 @@ func (Favorite) TableName() string {
 }
 
 // GetFavoriteUserIdList 根据videoId获取点赞userId
-func GetFavoriteUserIdList(videoId int64) ([]int64, error) {
-	var likeUserIdList []int64 //存所有该视频点赞用户id；
+func GetFavoriteUserIdList(videoId int64) ([]string, error) {
+	var likeUserIdList []string //存所有该视频点赞用户id；
 	//查询likes表对应视频id点赞用户，返回查询结果
 	err := db.GetMysqlDB().Model(Favorite{}).Where(map[string]interface{}{"video_id": videoId, "cancel": utils.IsFavorite}).
 		Pluck("user_id", &likeUserIdList).Error
@@ -84,8 +84,8 @@ func GetFavoriteInfo(userId string, videoId int64) (Favorite, error) {
 }
 
 // GetFavoriteVideoIdList 根据userId查询所属点赞全部videoId
-func GetFavoriteVideoIdList(userId string) ([]int64, error) {
-	var likeVideoIdList []int64
+func GetFavoriteVideoIdList(userId string) ([]string, error) {
+	var likeVideoIdList []string
 	err := db.GetMysqlDB().Model(Favorite{}).Where(map[string]interface{}{"user_id": userId, "cancel": utils.IsFavorite}).
 		Pluck("video_id", &likeVideoIdList).Error
 	if err != nil {

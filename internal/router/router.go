@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/IRONICBo/QiYin_BE/internal/api"
+	"github.com/IRONICBo/QiYin_BE/internal/middleware/jwt"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -39,13 +40,12 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/ping")
 		apiv1.POST("/login", api.UserLogin)
 		apiv1.POST("/register", api.UserRegister)
+		apiv1.GET("/userinfo", api.UserInfo)
 
 		// 收藏
 		favorite := apiv1.Group("/favorite/")
 		{
-			// Register with email
-			favorite.POST("/action", api.FavoriteAction)
-			// register.POST("/github", api.GithubRegister)
+			favorite.POST("/action", jwt.Auth(), api.FavoriteAction)
 		}
 	}
 

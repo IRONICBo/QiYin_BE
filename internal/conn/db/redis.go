@@ -66,7 +66,8 @@ type RedisClient interface {
 	SIsMember(ctx context.Context, key string, value string) *redis.BoolCmd
 	SAdd(ctx context.Context, key string, value string) *redis.IntCmd
 	SRem(ctx context.Context, key string, value string) *redis.IntCmd
-	SMembers(ctx context.Context, key string) *redis.IntCmd
+	SMembers(ctx context.Context, key string) *redis.StringSliceCmd
+	SCard(ctx context.Context, key string) *redis.IntCmd
 }
 
 // RealRedisClient implemented the RedisClient interface and used a real Redis client.
@@ -78,12 +79,16 @@ func (r *RealRedisClient) SAdd(ctx context.Context, key string, value string) *r
 	return r.client.SAdd(ctx, key, value)
 }
 
+func (r *RealRedisClient) SCard(ctx context.Context, key string) *redis.IntCmd {
+	return r.client.SCard(ctx, key)
+}
+
 func (r *RealRedisClient) SRem(ctx context.Context, key string, value string) *redis.IntCmd {
 	return r.client.SRem(ctx, key, value)
 }
 
-func (r *RealRedisClient) SMembers(ctx context.Context, key string) *redis.IntCmd {
-	return r.client.SRem(ctx, key)
+func (r *RealRedisClient) SMembers(ctx context.Context, key string) *redis.StringSliceCmd {
+	return r.client.SMembers(ctx, key)
 }
 
 func (r *RealRedisClient) SIsMember(ctx context.Context, key string, value string) *redis.BoolCmd {

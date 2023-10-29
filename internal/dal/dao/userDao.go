@@ -5,24 +5,25 @@ import (
 	"log"
 )
 
-//// User 对应数据库User表结构的结构体
-//type User struct {
-//	Id       string
-//	Name     string
-//	Password string
-//}
+type ResUser struct {
+	Id              string `json:"id"`
+	Name            string `json:"name"`
+	Avatar          string `json:"avatar"`
+	BackgroundImage string `json:"background_image"`
+	Signature       string `json:"signature"`
+	TotalFavorited  int64  `json:"total_favorited"`
+	FavoriteCount   int64  `json:"favorite_count"`
+	//TotalCollected  int64  `json:"total_collected"`
+	//CollectionCount   int64  `json:"collection_count"`
+}
 
 type User struct {
-	Id              string
-	Name            string
-	Password        string
-	Avatar          string `json:"avatar" gorm:"column:avatar"`
-	BackgroundImage string `json:"background_image" gorm:"column:background_image"`
-	Signature       string `json:"signature" gorm:"column:signature"`
-	FollowCount     int64  `json:"follow_count"`
-	FollowerCount   int64  `json:"follower_count"`
-	TotalFavorited  int64  `json:"total_favorited,omitempty"`
-	FavoriteCount   int64  `json:"favorite_count,omitempty"`
+	Id              string `json:"id"`
+	Name            string `json:"name"`
+	Avatar          string `json:"avatar"`
+	BackgroundImage string `json:"background_image"`
+	Signature       string `json:"signature"`
+	Password        string `json:"password,omitempty"`
 }
 
 // TableName 修改表名映射
@@ -31,8 +32,8 @@ func (user User) TableName() string {
 }
 
 // GetTableUserList 获取全部TableUser对象
-func GetTableUserList() ([]User, error) {
-	tableUsers := []User{}
+func GetTableUserList() ([]ResUser, error) {
+	tableUsers := []ResUser{}
 	if err := db.GetMysqlDB().Table("users").Find(&tableUsers).Error; err != nil {
 		log.Println(err.Error())
 		return tableUsers, err
@@ -40,11 +41,11 @@ func GetTableUserList() ([]User, error) {
 	return tableUsers, nil
 }
 
-func QueryUserLogin(username string, key string) (User, bool) {
-	var user User
+func QueryUserLogin(username string, key string) (ResUser, bool) {
+	var user ResUser
 	res := db.GetMysqlDB().Table("users").Where(key+" = ?", username).First(&user)
 	if res.Error != nil || res.RowsAffected == 0 {
-		return User{}, false
+		return ResUser{}, false
 	}
 	return user, true
 }
@@ -60,8 +61,8 @@ func GetTableUserByUsername(name string) (User, error) {
 }
 
 // GetTableUserById 根据user_id获得TableUser对象
-func GetTableUserById(id int64) (User, error) {
-	user := User{}
+func GetTableUserById(id string) (ResUser, error) {
+	user := ResUser{}
 	if err := db.GetMysqlDB().Table("users").Where("id = ?", id).First(&user).Error; err != nil {
 		log.Println(err.Error())
 		return user, err

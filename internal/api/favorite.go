@@ -25,9 +25,13 @@ func FavoriteAction(c *gin.Context) {
 		return
 	}
 
+	userId := c.GetString("userId")
+	if len(userId) == 0 {
+		response.FailWithCode(common.INVALID_PARAMS, c)
+		return
+	}
 	svc := service.NewFavoriteService(c)
-	//获取点赞或者取消赞操作的错误信息
-	err = svc.FavouriteAction(params.UserID, strconv.FormatInt(params.VideoId, 10), params.ActionType)
+	err = svc.FavouriteAction(userId, strconv.FormatInt(params.VideoId, 10), params.ActionType)
 
 	if err != nil {
 		log.Debug("Favorite operation error", err)

@@ -13,31 +13,21 @@ import (
 
 type UserServiceImpl struct {
 	Service
-	//FollowService
-	//FavoriteService
+	FavoriteService
 }
 
-func (usi *UserServiceImpl) GetUserById(id int64) (User, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (usi *UserServiceImpl) GetUserByIdWithCurId(id int64, curId int64) (User, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-// NewCommonService return new service with gin context.
+// NewUserService return new service with gin context.
 func NewUserService(c *gin.Context) *UserServiceImpl {
 	return &UserServiceImpl{
 		Service: Service{
 			ctx: c,
 		},
+		FavoriteService: &FavoriteServiceImpl{},
 	}
 }
 
 // GetTableUserList 获得全部TableUser对象
-func (usi *UserServiceImpl) GetTableUserList() []dao.User {
+func (usi *UserServiceImpl) GetTableUserList() []dao.ResUser {
 	tableUsers, err := dao.GetTableUserList()
 	if err != nil {
 		log.Println("Err:", err.Error())
@@ -51,7 +41,6 @@ func (usi *UserServiceImpl) GetTableUserByUsername(name string) (dao.User, error
 	user, err := dao.GetTableUserByUsername(name)
 	if err != nil {
 		log.Println("Err:", err.Error())
-		log.Println("User Not Found")
 		return user, err
 	}
 	log.Println("Query User Success")
@@ -67,15 +56,14 @@ func (usi *UserServiceImpl) IsUserExistByName(name string) bool {
 }
 
 // GetTableUserById 根据user_id获得TableUser对象
-func (usi *UserServiceImpl) GetTableUserById(id int64) dao.User {
-	User, err := dao.GetTableUserById(id)
+func (usi *UserServiceImpl) GetTableUserById(id string) (dao.ResUser, error) {
+	user, err := dao.GetTableUserById(id)
 	if err != nil {
-		log.Println("Err:", err.Error())
-		log.Println("User Not Found")
-		return User
+		log.Println("User Not Found", err.Error())
+		return user, err
 	}
 	log.Println("Query User Success")
-	return User
+	return user, nil
 }
 
 // InsertTableUser 将tableUser插入表内
@@ -132,15 +120,11 @@ func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*response
 
 	uuid := utils.GenUUID()
 	newUser := dao.User{
-		Name:           param.Name,
-		Password:       utils.EncryptPassword(param.Password),
-		Id:             uuid,
-		Avatar:         "",
-		Signature:      "",
-		FollowCount:    0,
-		FollowerCount:  0,
-		TotalFavorited: 0,
-		FavoriteCount:  0,
+		Name:      param.Name,
+		Password:  utils.EncryptPassword(param.Password),
+		Id:        uuid,
+		Avatar:    "",
+		Signature: "",
 	}
 	if usi.InsertTableUser(&newUser) != true {
 		return resp, errors.New("insert failed")
@@ -158,47 +142,26 @@ func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*response
 	return resp, nil
 }
 
-//
-//// GetUserById 未登录情况下,根据user_id获得User对象
-//func (usi *UserServiceImpl) GetUserById(id int64) (User, error) {
-//	user := User{
-//		Id:             0,
-//		Name:           "",
-//		FollowCount:    0,
-//		FollowerCount:  0,
-//		IsFollow:       false,
-//		TotalFavorited: 0,
-//		FavoriteCount:  0,
-//	}
-//	User, err := dao.GetTableUserById(id)
-//	if err != nil {
-//		log.Println("Err:", err.Error())
-//		log.Println("User Not Found")
-//		return user, err
-//	}
-//	log.Println("Query User Success")
-//	followCount, _ := usi.GetFollowingCnt(id)
-//	if err != nil {
-//		log.Println("Err:", err.Error())
-//	}
-//	followerCount, _ := usi.GetFollowerCnt(id)
-//	if err != nil {
-//		log.Println("Err:", err.Error())
-//	}
-//	u := GetFavoriteService() //解决循环依赖
-//	totalFavorited, _ := u.TotalFavourite(id)
-//	favoritedCount, _ := u.FavouriteVideoCount(id)
-//	user = User{
-//		Id:             id,
-//		Name:           User.Name,
-//		FollowCount:    followCount,
-//		FollowerCount:  followerCount,
-//		IsFollow:       false,
-//		TotalFavorited: totalFavorited,
-//		FavoriteCount:  favoritedCount,
-//	}
-//	return user, nil
-//}
+// 获得用户信息  不需要登录  只有点赞操作和评论需要登录
+func (usi *UserServiceImpl) GetUserById(id string) (dao.ResUser, error) {
+	user := dao.ResUser{}
+	user, err := dao.GetTableUserById(id)
+	if err != nil {
+		log.Println("User Not Found")
+		return user, err
+	}
+	log.Println("Query User Success")
+
+	u := GetLikeService() //解决循环依赖
+	// 获取点赞以及被点赞的数量
+	totalFavorited, _ := u.TotalFavourite(id)
+	favoritedCount, _ := u.FavouriteVideoCount(id)
+	user.TotalFavorited = totalFavorited
+	user.FavoriteCount = favoritedCount
+
+	return user, nil
+}
+
 //
 //// GetUserByIdWithCurId 已登录(curID)情况下,根据user_id获得User对象
 //func (usi *UserServiceImpl) GetUserByIdWithCurId(id int64, curId int64) (User, error) {
