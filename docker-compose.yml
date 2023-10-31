@@ -38,12 +38,30 @@ services:
     restart: always
     ports:
       - '6379:6379'
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     volumes:
       - redis_data:/data
     networks:
       qiyin-network:
         ipv4_address: 177.8.0.4
 
+  rabbitmq:
+    image: rabbitmq:3.7.7-management
+    container_name: qiyin-rabbitmq
+    hostname: qiyin-rabbitmq
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      qiyin-network:
+        ipv4_address: 177.8.0.5
+
 volumes:
   mysql_data:
   redis_data:
+  rabbitmq_data:
