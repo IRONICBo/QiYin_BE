@@ -31,3 +31,15 @@ func Auth() gin.HandlerFunc {
 		context.Next()
 	}
 }
+
+func GetUserId(c *gin.Context) string {
+	token := c.GetHeader("token")
+	if len(token) != 0 {
+		parseToken, err := utils.ParseJwtToken(token)
+		if err != nil {
+			return ""
+		}
+		return parseToken.UserUUID
+	}
+	return ""
+}

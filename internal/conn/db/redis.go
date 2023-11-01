@@ -47,6 +47,8 @@ type RedisClient interface {
 	ZAdd(ctx context.Context, key string, members ...*redis.Z) *redis.IntCmd
 	ZRem(ctx context.Context, key string, members ...interface{}) *redis.IntCmd
 	ZRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd
+	ZIncrBy(ctx context.Context, key string, increment float64, member string) *redis.FloatCmd
+	ZRevRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd
 
 	// map
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
@@ -215,6 +217,12 @@ func (r *RealRedisClient) ZAdd(ctx context.Context, key string, members ...*redi
 	return r.client.ZAdd(ctx, key, members...)
 }
 
+// ZIncrBy zset add.
+func (r *RealRedisClient) ZIncrBy(ctx context.Context, key string, increment float64, member string) *redis.FloatCmd {
+	fmt.Println("sssssssssssssssssssssssssss")
+	return r.client.ZIncrBy(ctx, key, increment, member)
+}
+
 // ZRem zset remove.
 func (r *RealRedisClient) ZRem(ctx context.Context, key string, members ...interface{}) *redis.IntCmd {
 	return r.client.ZRem(ctx, key, members...)
@@ -223,6 +231,11 @@ func (r *RealRedisClient) ZRem(ctx context.Context, key string, members ...inter
 // ZRange zset range.
 func (r *RealRedisClient) ZRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd {
 	return r.client.ZRange(ctx, key, start, stop)
+}
+
+// ZRevRange zset range.
+func (r *RealRedisClient) ZRevRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd {
+	return r.client.ZRevRange(ctx, key, start, stop)
 }
 
 // HSet hset.

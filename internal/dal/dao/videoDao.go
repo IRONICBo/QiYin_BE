@@ -16,7 +16,7 @@ type Video struct {
 
 type ResVideo struct {
 	Video
-	Author        User  `json:"author"`
+	Author        User  `json:"author" gorm:"foreignKey:UserId"`
 	FavoriteCount int64 `json:"favorite_count"`
 	CommentCount  int64 `json:"comment_count"`
 	IsFavorite    bool  `json:"is_favorite"`
@@ -33,4 +33,16 @@ func GetVideoIdsByAuthorId(userId string) ([]int64, error) {
 		return nil, result.Error
 	}
 	return id, nil
+}
+
+// GetVideoByTitle
+// 通过关键字搜索视频  title
+func GetVideoByTitle(value string) ([]ResVideo, error) {
+	var videoList []ResVideo
+	result := db.GetMysqlDB().Table("videos").Where("title LIKE ?", "%"+value+"%").Preload("Author").Find(&videoList)
+	//如果出现问题，返回对应到空，并且返回error
+	if result.Error != nil {
+		return []ResVideo{}, result.Error
+	}
+	return videoList, nil
 }

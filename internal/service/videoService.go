@@ -1,5 +1,7 @@
 package service
 
+import "github.com/IRONICBo/QiYin_BE/internal/dal/dao"
+
 type VideoService interface {
 	//// Feed
 	//// 通过传入时间戳，当前用户的id，返回对应的视频切片数组，以及视频数组中最早的发布时间
@@ -21,4 +23,6 @@ type VideoService interface {
 	// GetVideoIdList
 	// 通过一个作者id，返回该用户发布的视频id切片数组
 	GetVideoIdList(userId string) ([]int64, error)
+
+	Search(searchValue string, userId string) ([]dao.ResVideo, error)
 }

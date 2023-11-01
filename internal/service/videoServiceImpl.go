@@ -1,13 +1,29 @@
 package service
 
 import (
+	"context"
+	"fmt"
+	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
 	"github.com/IRONICBo/QiYin_BE/internal/dal/dao"
+	"github.com/IRONICBo/QiYin_BE/internal/utils"
+	"github.com/gin-gonic/gin"
+	"log"
+	"strconv"
+	"time"
 )
 
 type VideoServiceImpl struct {
 	UserService
 	FavoriteService
 	//CommentService
+}
+
+// NewVideoService return new service with gin context.
+func NewVideoService(c *gin.Context) *VideoServiceImpl {
+	return &VideoServiceImpl{
+		FavoriteService: &FavoriteServiceImpl{},
+		UserService:     &UserServiceImpl{},
+	}
 }
 
 //
@@ -189,4 +205,56 @@ func (videoService *VideoServiceImpl) GetVideoIdList(userId string) ([]int64, er
 		return nil, err
 	}
 	return id, nil
+}
+
+// Search 搜索
+func (videoService *VideoServiceImpl) Search(searchValue string, userId string) ([]dao.ResVideo, error) {
+	// 查询到相关的videolist + 相关的用户信息
+	videoList, err := dao.GetVideoByTitle(searchValue)
+	// 查询失败直接返回
+	if err != nil {
+		log.Printf("Search query failed：%v", err)
+		return videoList, err
+	}
+
+	//	将查询词放到redis中以便热榜搜索
+	ctx := context.Background()
+	key := utils.Search
+	if _, err := db.GetRedis().ZIncrBy(ctx, key, 1, searchValue).Result(); err != nil {
+		log.Printf("ZincrBt failed：%v", err)
+	}
+
+	// 设置过期时间
+	_, err = db.GetRedis().Expire(ctx, key, time.Duration(utils.OneDay)*time.Second).Result()
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	// 得到点赞数和收藏数
+	for _, video := range videoList {
+		favoriteCount, err := videoService.FavouriteCount(strconv.FormatInt(video.Id, 10), true)
+		if err != nil {
+			log.Printf("get favorite count failed：%v", err)
+		}
+		video.FavoriteCount = favoriteCount
+		//	todo like
+
+		isFavorite, err := videoService.IsFavourite(strconv.FormatInt(video.Id, 10), userId)
+		if err != nil {
+			log.Printf("get IsFavourite failed：%v", err)
+		}
+		video.IsFavorite = isFavorite
+	}
+
+	return videoList, nil
+}
+
+// GetHots 得到热榜
+func (videoService *VideoServiceImpl) GetHots() ([]string, error) {
+	ctx := context.Background()
+	res, err := db.GetRedis().ZRevRange(ctx, utils.Search, 0, 9).Result()
+	if err != nil {
+		return []string{}, err
+	}
+	return res, nil
 }

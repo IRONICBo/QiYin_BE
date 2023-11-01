@@ -57,6 +57,11 @@ func InitRouter() *gin.Engine {
 			comment.POST("/add", jwt.Auth(), api.CommentAdd)
 		}
 
+		video := apiv1.Group("/video/")
+		{
+			video.GET("/search", api.Search)
+			video.GET("/hots", api.GetHots)
+		}
 	}
 
 	return r
