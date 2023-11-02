@@ -2,6 +2,7 @@ package rabbitmq
 
 import (
 	"fmt"
+
 	"github.com/IRONICBo/QiYin_BE/internal/config"
 	"github.com/IRONICBo/QiYin_BE/pkg/log"
 	"github.com/streadway/amqp"

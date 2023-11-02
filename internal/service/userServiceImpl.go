@@ -2,13 +2,14 @@ package service
 
 import (
 	"errors"
+	"log"
+
 	"github.com/IRONICBo/QiYin_BE/internal/dal/dao"
 	requestparams "github.com/IRONICBo/QiYin_BE/internal/params/request"
 	responseparams "github.com/IRONICBo/QiYin_BE/internal/params/response"
 	util "github.com/IRONICBo/QiYin_BE/internal/utils"
 	"github.com/IRONICBo/QiYin_BE/pkg/utils"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 type UserServiceImpl struct {
@@ -26,7 +27,7 @@ func NewUserService(c *gin.Context) *UserServiceImpl {
 	}
 }
 
-// GetTableUserList 获得全部TableUser对象
+// GetTableUserList 获得全部TableUser对象.
 func (usi *UserServiceImpl) GetTableUserList() []dao.ResUser {
 	tableUsers, err := dao.GetTableUserList()
 	if err != nil {
@@ -36,7 +37,7 @@ func (usi *UserServiceImpl) GetTableUserList() []dao.ResUser {
 	return tableUsers
 }
 
-// GetTableUserByUsername 根据username获得TableUser对象
+// GetTableUserByUsername 根据username获得TableUser对象.
 func (usi *UserServiceImpl) GetTableUserByUsername(name string) (dao.User, error) {
 	user, err := dao.GetTableUserByUsername(name)
 	if err != nil {
@@ -55,7 +56,7 @@ func (usi *UserServiceImpl) IsUserExistByName(name string) bool {
 	return true
 }
 
-// GetTableUserById 根据user_id获得TableUser对象
+// GetTableUserById 根据user_id获得TableUser对象.
 func (usi *UserServiceImpl) GetTableUserById(id string) (dao.ResUser, error) {
 	user, err := dao.GetTableUserById(id)
 	if err != nil {
@@ -66,7 +67,7 @@ func (usi *UserServiceImpl) GetTableUserById(id string) (dao.ResUser, error) {
 	return user, nil
 }
 
-// InsertTableUser 将tableUser插入表内
+// InsertTableUser 将tableUser插入表内.
 func (usi *UserServiceImpl) InsertTableUser(User *dao.User) bool {
 	flag := dao.InsertTableUser(User)
 	if flag == false {
@@ -142,7 +143,7 @@ func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*response
 	return resp, nil
 }
 
-// 获得用户信息  不需要登录  只有点赞操作和评论需要登录
+// 获得用户信息  不需要登录  只有点赞操作和评论需要登录.
 func (usi *UserServiceImpl) GetUserById(id string) (dao.ResUser, error) {
 	user := dao.ResUser{}
 	user, err := dao.GetTableUserById(id)
@@ -152,7 +153,7 @@ func (usi *UserServiceImpl) GetUserById(id string) (dao.ResUser, error) {
 	}
 	log.Println("Query User Success")
 
-	u := GetLikeService() //解决循环依赖
+	u := GetLikeService() // 解决循环依赖
 	// 获取点赞以及被点赞的数量
 	totalFavorited, _ := u.TotalFavourite(id)
 	favoritedCount, _ := u.FavouriteVideoCount(id)

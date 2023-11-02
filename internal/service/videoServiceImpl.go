@@ -3,19 +3,20 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
+	"strconv"
+	"time"
+
 	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
 	"github.com/IRONICBo/QiYin_BE/internal/dal/dao"
 	"github.com/IRONICBo/QiYin_BE/internal/utils"
 	"github.com/gin-gonic/gin"
-	"log"
-	"strconv"
-	"time"
 )
 
 type VideoServiceImpl struct {
 	UserService
 	FavoriteService
-	//CommentService
+	// CommentService
 }
 
 // NewVideoService return new service with gin context.
@@ -197,9 +198,9 @@ func NewVideoService(c *gin.Context) *VideoServiceImpl {
 //}
 
 // GetVideoIdList
-// 通过一个作者id，返回该用户发布的视频id切片数组
+// 通过一个作者id，返回该用户发布的视频id切片数组.
 func (videoService *VideoServiceImpl) GetVideoIdList(userId string) ([]int64, error) {
-	//直接调用dao层方法获取id即可
+	// 直接调用dao层方法获取id即可
 	id, err := dao.GetVideoIdsByAuthorId(userId)
 	if err != nil {
 		return nil, err
@@ -207,7 +208,7 @@ func (videoService *VideoServiceImpl) GetVideoIdList(userId string) ([]int64, er
 	return id, nil
 }
 
-// Search 搜索
+// Search 搜索.
 func (videoService *VideoServiceImpl) Search(searchValue string, userId string) ([]dao.ResVideo, error) {
 	// 查询到相关的videolist + 相关的用户信息
 	videoList, err := dao.GetVideoByTitle(searchValue)
@@ -249,7 +250,7 @@ func (videoService *VideoServiceImpl) Search(searchValue string, userId string) 
 	return videoList, nil
 }
 
-// GetHots 得到热榜
+// GetHots 得到热榜.
 func (videoService *VideoServiceImpl) GetHots() ([]string, error) {
 	ctx := context.Background()
 	res, err := db.GetRedis().ZRevRange(ctx, utils.Search, 0, 9).Result()

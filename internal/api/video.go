@@ -14,6 +14,7 @@ import (
 // @Summary Search
 // @Description Test API
 // @Produce application/json
+// @Param searchValue query string true "searchValue"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/search [get].
 func Search(c *gin.Context) {
@@ -36,6 +37,7 @@ func Search(c *gin.Context) {
 // @Summary GetHots
 // @Description Test API
 // @Produce application/json
+// @Param searchValue query string true "searchValue"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/hots [get].
 func GetHots(c *gin.Context) {

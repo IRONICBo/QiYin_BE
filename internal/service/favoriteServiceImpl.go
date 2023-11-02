@@ -3,16 +3,17 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
-	"github.com/IRONICBo/QiYin_BE/internal/dal/dao"
-	"github.com/IRONICBo/QiYin_BE/internal/middleware/rabbitmq"
-	"github.com/IRONICBo/QiYin_BE/internal/utils"
-	"github.com/gin-gonic/gin"
 	"log"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
+	"github.com/IRONICBo/QiYin_BE/internal/dal/dao"
+	"github.com/IRONICBo/QiYin_BE/internal/middleware/rabbitmq"
+	"github.com/IRONICBo/QiYin_BE/internal/utils"
+	"github.com/gin-gonic/gin"
 )
 
 type FavoriteServiceImpl struct {
@@ -32,7 +33,7 @@ func NewFavoriteService(c *gin.Context) *FavoriteServiceImpl {
 	}
 }
 
-// IsFavourite 根据favorite:userId,videoId查询点赞状态;
+// IsFavourite 根据favorite:userId,videoId查询点赞状态;.
 func (favorite *FavoriteServiceImpl) IsFavourite(videoId string, userId string) (bool, error) {
 	key := fmt.Sprintf("%s:%s", utils.Favorite, userId)
 	ctx := context.Background()
@@ -49,7 +50,7 @@ func (favorite *FavoriteServiceImpl) IsFavourite(videoId string, userId string) 
 		log.Printf("IsFavourite query success")
 		return exist, nil
 	} else {
-		//反过来查一下
+		// 反过来查一下
 		reverseKey := fmt.Sprintf("%s:%s", utils.Favorite, videoId)
 		if n, err := db.GetRedis().Exists(ctx, reverseKey).Result(); n > 1 {
 			if err != nil {
@@ -64,7 +65,7 @@ func (favorite *FavoriteServiceImpl) IsFavourite(videoId string, userId string) 
 			log.Printf("IsFavourite query success")
 			return exist, nil
 		} else {
-			//两种方式都没有查到  所以都需要进行同步
+			// 两种方式都没有查到  所以都需要进行同步
 			ok, err := favorite.favoriteToRedis(ctx, key, userId, false)
 			if err != nil || !ok {
 				return false, err
@@ -73,9 +74,9 @@ func (favorite *FavoriteServiceImpl) IsFavourite(videoId string, userId string) 
 			if err != nil || !ok {
 				return false, err
 			}
-			//查询Redis FavoriteUserId,key：strUserId中是否存在value:videoId,存在返回true,不存在返回false
+			// 查询Redis FavoriteUserId,key：strUserId中是否存在value:videoId,存在返回true,不存在返回false
 			exist, err2 := db.GetRedis().SIsMember(ctx, key, videoId).Result()
-			//如果有问题，说明操作redis失败,返回默认false,返回错误信息
+			// 如果有问题，说明操作redis失败,返回默认false,返回错误信息
 			if err2 != nil {
 				return false, err2
 			}
@@ -84,7 +85,7 @@ func (favorite *FavoriteServiceImpl) IsFavourite(videoId string, userId string) 
 	}
 }
 
-// 同步点赞状态mysql到redis
+// 同步点赞状态mysql到redis.
 func (favorite *FavoriteServiceImpl) favoriteToRedis(ctx context.Context, key string, userId string, isReverse bool) (bool, error) {
 	//如果不存在，则维护Redis FavoriteUserId 新建key:key,设置过期时间，加入DefaultRedisValue，
 	//key:key，加入value:DefaultRedisValue,过期才会删，防止删最后一个数据的时候数据库还没更新完出现脏读，或者数据库操作失败造成的脏读
@@ -110,13 +111,13 @@ func (favorite *FavoriteServiceImpl) favoriteToRedis(ctx context.Context, key st
 		IdList, err = dao.GetFavoriteVideoIdList(userId)
 	}
 
-	//videoIdList, err1 := dao.GetFavoriteVideoIdList(userId)
-	//如果有问题，说明查询失败，返回错误信息："get favoriteVideoIdList failed"
+	// videoIdList, err1 := dao.GetFavoriteVideoIdList(userId)
+	// 如果有问题，说明查询失败，返回错误信息："get favoriteVideoIdList failed"
 	if err != nil {
 		return false, err
 	}
 
-	//维护Redis FavoriteUserId(key:key)，遍历videoIdList加入
+	// 维护Redis FavoriteUserId(key:key)，遍历videoIdList加入
 	for _, favoriteId := range IdList {
 		if _, err1 := db.GetRedis().SAdd(ctx, key, favoriteId).Result(); err1 != nil {
 			db.GetRedis().Del(ctx, key)
@@ -127,16 +128,16 @@ func (favorite *FavoriteServiceImpl) favoriteToRedis(ctx context.Context, key st
 	return true, nil
 }
 
-// 点赞
+// 点赞.
 func (favorite *FavoriteServiceImpl) favouriteDo(key string, videoId string, userId string, sb strings.Builder, isReverse bool) error {
 	ctx := context.Background()
-	//查询Redis FavoriteUserId(key:key)是否已经加载过此信息
+	// 查询Redis FavoriteUserId(key:key)是否已经加载过此信息
 	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
-		//如果有问题，说明查询redis失败,返回错误信息
+		// 如果有问题，说明查询redis失败,返回错误信息
 		if err != nil {
 			log.Printf("FavouriteAction query failed：%v", err)
 			return err
-		} //如果加载过此信息key:key，则加入value:videoId
+		} // 如果加载过此信息key:key，则加入value:videoId
 		if _, err1 := db.GetRedis().SAdd(ctx, key, videoId).Result(); err1 != nil {
 			log.Print(err1)
 			return err1
@@ -151,7 +152,6 @@ func (favorite *FavoriteServiceImpl) favouriteDo(key string, videoId string, use
 		if _, err2 := db.GetRedis().SAdd(ctx, key, videoId).Result(); err2 != nil {
 			return err2
 		} else {
-
 			rabbitmq.RmqFavoriteAdd.Publish(sb.String())
 		}
 	}
@@ -161,16 +161,16 @@ func (favorite *FavoriteServiceImpl) favouriteDo(key string, videoId string, use
 
 func (favorite *FavoriteServiceImpl) favouriteCancel(key string, videoId string, userId string, sb strings.Builder, isReverse bool) error {
 	ctx := context.Background()
-	//查询Redis FavoriteUserId(key:key)是否已经加载过此信息
+	// 查询Redis FavoriteUserId(key:key)是否已经加载过此信息
 	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
-		//如果有问题，说明查询redis失败,返回错误信息
+		// 如果有问题，说明查询redis失败,返回错误信息
 		if err != nil {
 			return err
-		} //防止出现redis数据不一致情况，当redis删除操作成功，才执行数据库更新操作
+		} // 防止出现redis数据不一致情况，当redis删除操作成功，才执行数据库更新操作
 		if _, err1 := db.GetRedis().SRem(ctx, key, videoId).Result(); err1 != nil {
 			return err1
 		} else {
-			//后续数据库的操作，可以在mq里设置若执行数据库更新操作失败，重新消费该信息
+			// 后续数据库的操作，可以在mq里设置若执行数据库更新操作失败，重新消费该信息
 
 			rabbitmq.RmqFavoriteDel.Publish(sb.String())
 		}
@@ -183,7 +183,6 @@ func (favorite *FavoriteServiceImpl) favouriteCancel(key string, videoId string,
 		if _, err2 := db.GetRedis().SRem(ctx, key, videoId).Result(); err2 != nil {
 			return err2
 		} else {
-
 			rabbitmq.RmqFavoriteDel.Publish(sb.String())
 		}
 	}
@@ -192,17 +191,17 @@ func (favorite *FavoriteServiceImpl) favouriteCancel(key string, videoId string,
 
 // FavouriteAction 根据userId，videoId,actionType对视频进行点赞或者取消赞操作;
 // step1: 维护Redis FavoriteUserId(key:key),添加或者删除value:videoId,FavoriteVideoId(key:strVideoId),添加或者删除value:userId;
-// step2：更新数据库favorites表;
+// step2：更新数据库favorites表;.
 func (favorite *FavoriteServiceImpl) FavouriteAction(userId string, videoId string, actionType int32) error {
 	key := fmt.Sprintf("%s:%s", utils.Favorite, userId)
-	//将要操作数据库favorites表的信息打入消息队列RmqFavoriteAdd或者RmqFavoriteDel
-	//拼接打入信息
+	// 将要操作数据库favorites表的信息打入消息队列RmqFavoriteAdd或者RmqFavoriteDel
+	// 拼接打入信息
 	sb := strings.Builder{}
 	sb.WriteString(userId)
 	sb.WriteString(" ")
 	sb.WriteString(videoId)
 
-	//执行点赞操作维护
+	// 执行点赞操作维护
 	if actionType == utils.IsFavorite {
 		err := favorite.favouriteDo(key, videoId, userId, sb, false)
 		if err != nil {
@@ -212,7 +211,7 @@ func (favorite *FavoriteServiceImpl) FavouriteAction(userId string, videoId stri
 		if err != nil {
 			return err
 		}
-	} else { //执行取消赞操作维护
+	} else { // 执行取消赞操作维护
 		err := favorite.favouriteCancel(key, videoId, userId, sb, false)
 		if err != nil {
 			return err
@@ -226,17 +225,17 @@ func (favorite *FavoriteServiceImpl) FavouriteAction(userId string, videoId stri
 }
 
 // TotalFavourite 根据userId获取这个用户总共被点赞数量
-// 首先需要找到用户的视频  并统计每个视频的被点赞数
+// 首先需要找到用户的视频  并统计每个视频的被点赞数.
 func (favorite *FavoriteServiceImpl) TotalFavourite(userId string) (int64, error) {
-	//根据userId获取这个用户的发布视频列表信息
+	// 根据userId获取这个用户的发布视频列表信息
 	videoIdList, err := favorite.GetVideoIdList(userId)
 	if err != nil {
 		return 0, err
 	}
 	var sum int64
-	//提前开辟空间,存取每个视频的点赞数
+	// 提前开辟空间,存取每个视频的点赞数
 	videoFavoriteCountList := new([]int64)
-	//采用协程并发将对应videoId的点赞数添加到集合中去
+	// 采用协程并发将对应videoId的点赞数添加到集合中去
 	i := len(videoIdList)
 	var wg sync.WaitGroup
 	wg.Add(i)
@@ -244,7 +243,7 @@ func (favorite *FavoriteServiceImpl) TotalFavourite(userId string) (int64, error
 		go favorite.addVideoFavoriteCount(videoIdList[j], videoFavoriteCountList, &wg)
 	}
 	wg.Wait()
-	//遍历累加，求总被点赞数
+	// 遍历累加，求总被点赞数
 	for _, count := range *videoFavoriteCountList {
 		sum += count
 	}
@@ -253,37 +252,37 @@ func (favorite *FavoriteServiceImpl) TotalFavourite(userId string) (int64, error
 
 // FavouriteCount 根据videoId获取对应点赞数量;
 // step1：查询Redis FavoriteVideoId(key:strVideoId)是否已经加载过此信息，通过set集合中userId个数，获取点赞数量;
-// step2：FavoriteVideoId中都没有对应key，维护FavoriteVideoId对应key，再通过set集合中userId个数，获取点赞数量;
+// step2：FavoriteVideoId中都没有对应key，维护FavoriteVideoId对应key，再通过set集合中userId个数，获取点赞数量;.
 func (favorite *FavoriteServiceImpl) FavouriteCount(videoId string, isReverse bool) (int64, error) {
-	//将int64 videoId转换为 string strVideoId
+	// 将int64 videoId转换为 string strVideoId
 	key := fmt.Sprintf("%s:%s", utils.Favorite, videoId)
 	ctx := context.Background()
 
-	//step1 如果key:strVideoId存在 则计算集合中userId个数   set中会有默认值  所以必须要大于1
+	// step1 如果key:strVideoId存在 则计算集合中userId个数   set中会有默认值  所以必须要大于1
 	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 1 {
-		//如果有问题，说明查询redis失败,返回默认false,返回错误信息
+		// 如果有问题，说明查询redis失败,返回默认false,返回错误信息
 		if err != nil {
 			log.Printf("FavouriteCount query failed：%v", err)
 			return 0, err
 		}
-		//获取集合中userId个数
+		// 获取集合中userId个数
 		count, err1 := db.GetRedis().SCard(ctx, videoId).Result()
-		//如果有问题，说明操作redis失败,返回默认0,返回错误信息
+		// 如果有问题，说明操作redis失败,返回默认0,返回错误信息
 		if err1 != nil {
 			return 0, err1
 		}
-		return count - 1, nil //去掉默认的
+		return count - 1, nil // 去掉默认的
 	} else {
 		_, err1 := favorite.favoriteToRedis(ctx, key, videoId, isReverse)
 		if err1 != nil {
 			return 0, err1
 		}
-		//再通过set集合中userId个数,获取点赞数量
+		// 再通过set集合中userId个数,获取点赞数量
 		count, err2 := db.GetRedis().SCard(ctx, key).Result()
-		//fmt.Println(key)
-		//fmt.Println(db.GetRedis().SMembers(ctx, key))
-		//fmt.Println(count)
-		//如果有问题，说明操作redis失败,返回默认0,返回错误信息
+		// fmt.Println(key)
+		// fmt.Println(db.GetRedis().SMembers(ctx, key))
+		// fmt.Println(count)
+		// 如果有问题，说明操作redis失败,返回默认0,返回错误信息
 		if err2 != nil {
 			log.Printf("FavouriteCount query count failed%v", err2)
 			return 0, err2
@@ -292,7 +291,7 @@ func (favorite *FavoriteServiceImpl) FavouriteCount(videoId string, isReverse bo
 	}
 }
 
-// FavouriteVideoCount 根据userId获取这个用户点赞视频数量
+// FavouriteVideoCount 根据userId获取这个用户点赞视频数量.
 func (favorite *FavoriteServiceImpl) FavouriteVideoCount(userId string) (int64, error) {
 	count, err := favorite.FavouriteCount(userId, false)
 	if err != nil {
@@ -301,13 +300,13 @@ func (favorite *FavoriteServiceImpl) FavouriteVideoCount(userId string) (int64, 
 	return count, nil
 }
 
-// addVideoFavoriteCount 根据videoId，将该视频点赞数加入对应提前开辟好的空间内
+// addVideoFavoriteCount 根据videoId，将该视频点赞数加入对应提前开辟好的空间内.
 func (favorite *FavoriteServiceImpl) addVideoFavoriteCount(videoId int64, videoFavoriteCountList *[]int64, wg *sync.WaitGroup) {
 	defer wg.Done()
-	//调用FavouriteCount：根据videoId,获取点赞数
+	// 调用FavouriteCount：根据videoId,获取点赞数
 	count, err := favorite.FavouriteCount(strconv.FormatInt(videoId, 10), true)
 	if err != nil {
-		//如果有错误，输出错误信息，并不加入该视频点赞数
+		// 如果有错误，输出错误信息，并不加入该视频点赞数
 		log.Printf(err.Error())
 		return
 	}
@@ -420,7 +419,7 @@ func (favorite *FavoriteServiceImpl) addVideoFavoriteCount(videoId int64, videoF
 //	*favoriteVideoList = append(*favoriteVideoList, video)
 //}
 
-// GetLikeService 解决likeService调videoService,videoService调userService,useService调likeService循环依赖的问题
+// GetLikeService 解决likeService调videoService,videoService调userService,useService调likeService循环依赖的问题.
 func GetLikeService() FavoriteServiceImpl {
 	var userService UserServiceImpl
 	var videoService VideoServiceImpl

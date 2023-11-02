@@ -1,0 +1,82 @@
+linters:
+  disable-all: true  # close all linters
+  enable:            # open some linters
+    - typecheck
+    - asciicheck
+    - bodyclose
+    - cyclop
+    - deadcode
+    # - depguard
+    - dogsled
+    - dupl
+    - durationcheck
+    - errcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    # - forbidigo
+    - funlen
+    # - gci
+    # - gochecknoinits
+    - gocognit
+    - goconst
+    - gocyclo
+    - godot
+    - godox
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ifshort
+    - importas
+    - ineffassign
+    - lll
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - nlreturn
+    - noctx
+    - nolintlint
+    - paralleltest
+    - prealloc
+    - predeclared
+    - promlinter
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - wastedassign
+    - whitespace
+    - bidichk
+    - wastedassign
+    - golint
+    - execinquery
+    - nosprintfhostport
+    - grouper
+    - decorder
+    - errchkjson
+    - maintidx
+
+
+linters-settings:
+  govet:
+    check-shadowing: true
+    check-unreachable: true
+    check-rangeloops: true
+    check-copylocks: true

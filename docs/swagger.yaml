@@ -1,4 +1,32 @@
 definitions:
+  requestparams.CommentAddParams:
+    properties:
+      commentText:
+        type: string
+      videoId:
+        type: integer
+    type: object
+  requestparams.CommentDelParams:
+    properties:
+      commentId:
+        type: integer
+    type: object
+  requestparams.FavoriteParams:
+    properties:
+      actionType:
+        description: 1 点赞，-1 取消
+        type: integer
+      videoId:
+        description: UserID     string `json:userId`
+        type: integer
+    type: object
+  requestparams.UserParams:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
   response.Response:
     properties:
       code:
@@ -13,6 +41,154 @@ info:
   title: QiYin Backend
   version: v0.0.0
 paths:
+  /api/v1/comment/add:
+    post:
+      description: Test API
+      parameters:
+      - description: CommentAddParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.CommentAddParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: CommentAdd
+      tags:
+      - comment
+  /api/v1/comment/delete:
+    post:
+      description: Test API
+      parameters:
+      - description: CommentDelParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.CommentDelParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: CommentAction
+      tags:
+      - comment
+  /api/v1/comment/list:
+    get:
+      description: Test API
+      parameters:
+      - description: videoId
+        in: query
+        name: videoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: CommentList
+      tags:
+      - comment
+  /api/v1/favorite/action:
+    post:
+      description: Test API
+      parameters:
+      - description: FavoriteParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.FavoriteParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: FavoriteAction
+      tags:
+      - favorite
+  /api/v1/hots:
+    get:
+      description: Test API
+      parameters:
+      - description: searchValue
+        in: query
+        name: searchValue
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetHots
+      tags:
+      - video
+  /api/v1/login:
+    post:
+      description: Test API
+      parameters:
+      - description: UserParamsUserParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.UserParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserLogin
+      tags:
+      - user
   /api/v1/ping:
     post:
       description: Test API
@@ -31,6 +207,97 @@ paths:
       summary: Ping
       tags:
       - Ping
+  /api/v1/qiniu/token:
+    get:
+      description: Get QiNiu upload token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserLogin
+      tags:
+      - QiNiu
+  /api/v1/register:
+    post:
+      description: Test API
+      parameters:
+      - description: UserParamsUserParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.UserParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserRegister
+      tags:
+      - user
+  /api/v1/search:
+    get:
+      description: Test API
+      parameters:
+      - description: searchValue
+        in: query
+        name: searchValue
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Search
+      tags:
+      - video
+  /api/v1/userinfo:
+    get:
+      description: Test API
+      parameters:
+      - description: userId
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserInfo
+      tags:
+      - user
 securityDefinitions:
   ApiKeyAuth:
     in: header

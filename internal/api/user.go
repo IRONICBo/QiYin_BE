@@ -14,6 +14,7 @@ import (
 // @Summary UserLogin
 // @Description Test API
 // @Produce application/json
+// @Param data body requestparams.UserParams true "UserParamsUserParams"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/login [post].
 func UserLogin(c *gin.Context) {
@@ -40,6 +41,7 @@ func UserLogin(c *gin.Context) {
 // @Summary UserRegister
 // @Description Test API
 // @Produce application/json
+// @Param data body requestparams.UserParams true "UserParamsUserParams"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/register [post].
 func UserRegister(c *gin.Context) {
@@ -66,6 +68,7 @@ func UserRegister(c *gin.Context) {
 // @Summary UserInfo
 // @Description Test API
 // @Produce application/json
+// @Param userId query string true "userId"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/userinfo [get].
 func UserInfo(c *gin.Context) {

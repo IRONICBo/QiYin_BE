@@ -1,13 +1,14 @@
 package api
 
 import (
+	"strconv"
+
 	"github.com/IRONICBo/QiYin_BE/internal/common"
 	"github.com/IRONICBo/QiYin_BE/internal/common/response"
 	requestparams "github.com/IRONICBo/QiYin_BE/internal/params/request"
 	"github.com/IRONICBo/QiYin_BE/internal/service"
 	"github.com/IRONICBo/QiYin_BE/pkg/log"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 // FavoriteAction
@@ -15,6 +16,7 @@ import (
 // @Summary FavoriteAction
 // @Description Test API
 // @Produce application/json
+// @Param data body requestparams.FavoriteParams true "FavoriteParams"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/favorite/action [post].
 func FavoriteAction(c *gin.Context) {

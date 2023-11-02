@@ -23,7 +23,7 @@ APP Mode:
 - Log file: %s
 
 Topic: https://www.qiniu.com/activity/detail/651297ed0d50912d3d53307b#topic-introduction
-Contributer: @IRONICBo @Baihhh @nnnnn319
+Contributor: @IRONICBo @Baihhh @nnnnn319
 `
 	content := fmt.Sprintf(logo, config.Config.App.Version, config.Config.App.Debug, config.Config.App.LogFile)
 

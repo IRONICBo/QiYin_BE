@@ -1,8 +1,9 @@
 package dao
 
 import (
-	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
 	"time"
+
+	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
 )
 
 type Video struct {
@@ -11,7 +12,7 @@ type Video struct {
 	PlayUrl     string `json:"play_url"`
 	CoverUrl    string `json:"cover_url"`
 	PublishTime time.Time
-	Title       string `json:"title"` //视频名
+	Title       string `json:"title"` // 视频名
 }
 
 type ResVideo struct {
@@ -23,12 +24,12 @@ type ResVideo struct {
 }
 
 // GetVideoIdsByAuthorId
-// 通过作者id来查询发布的视频id切片集合
+// 通过作者id来查询发布的视频id切片集合.
 func GetVideoIdsByAuthorId(userId string) ([]int64, error) {
 	var id []int64
-	//通过pluck来获得单独的切片
+	// 通过pluck来获得单独的切片
 	result := db.GetMysqlDB().Model(&Video{}).Where("user_id", userId).Pluck("id", &id)
-	//如果出现问题，返回对应到空，并且返回error
+	// 如果出现问题，返回对应到空，并且返回error
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -36,11 +37,11 @@ func GetVideoIdsByAuthorId(userId string) ([]int64, error) {
 }
 
 // GetVideoByTitle
-// 通过关键字搜索视频  title
+// 通过关键字搜索视频  title.
 func GetVideoByTitle(value string) ([]ResVideo, error) {
 	var videoList []ResVideo
 	result := db.GetMysqlDB().Table("videos").Where("title LIKE ?", "%"+value+"%").Preload("Author").Find(&videoList)
-	//如果出现问题，返回对应到空，并且返回error
+	// 如果出现问题，返回对应到空，并且返回error
 	if result.Error != nil {
 		return []ResVideo{}, result.Error
 	}
