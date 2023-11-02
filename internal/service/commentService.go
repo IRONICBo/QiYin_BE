@@ -9,7 +9,7 @@ import (
 type CommentService interface {
 	CountFromVideoId(videoId int64) (int64, error)
 	CommentAdd(comment dao.Comment) (dao.CommentData, error)
-	CommentDelete(userId string, commentId int64)
+	CommentDelete(userId string, commentId int64) error
 	GetList(videoId string) ([]dao.CommentData, error)
 	insertRedisVideoCommentId(videoId string, commentId string)
 }

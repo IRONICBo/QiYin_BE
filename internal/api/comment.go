@@ -15,7 +15,8 @@ import (
 // CommentList
 // @Tags comment
 // @Summary CommentList
-// @Description Test API
+// @Description get comment list by videoId
+// @Param videoId query string true "query video id"
 // @Produce application/json
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/comment/list [get].
@@ -36,9 +37,10 @@ func CommentList(c *gin.Context) {
 
 // CommentDelete
 // @Tags comment
-// @Summary CommentAction
+// @Summary delete comment
 // @Description Test API
 // @Produce application/json
+// @Param data body requestparams.CommentDelParams true "CommentDelParams"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/comment/delete [post].
 func CommentDelete(c *gin.Context) {
@@ -69,8 +71,9 @@ func CommentDelete(c *gin.Context) {
 // CommentAdd
 // @Tags comment
 // @Summary CommentAdd
-// @Description Test API
+// @Description add comment
 // @Produce application/json
+// @Param data body requestparams.CommentAddParams true "CommentAddParams"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/comment/add [post].
 func CommentAdd(c *gin.Context) {

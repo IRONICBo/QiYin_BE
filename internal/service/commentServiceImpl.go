@@ -61,7 +61,7 @@ func (c CommentServiceImpl) CountFromVideoId(videoId int64) (int64, error) {
 		}
 		//评论id循环存入redis
 		for _, commentId := range cList {
-			insertRedisVideoCommentId(strconv.Itoa(int(videoId)), commentId)
+			c.insertRedisVideoCommentId(strconv.Itoa(int(videoId)), commentId)
 		}
 		log.Println("count comment save ids in redis")
 	}()
@@ -89,7 +89,7 @@ func (c CommentServiceImpl) CommentAdd(comment dao.Comment) (dao.CommentData, er
 	}
 	//将此发表的评论id存入redis
 	go func() {
-		insertRedisVideoCommentId(strconv.Itoa(int(comment.VideoId)), strconv.Itoa(int(comment.Id)))
+		c.insertRedisVideoCommentId(strconv.Itoa(int(comment.VideoId)), strconv.Itoa(int(comment.Id)))
 		log.Println("send comment save in redis")
 	}()
 	//返回结果
@@ -199,7 +199,7 @@ func (c CommentServiceImpl) GetList(videoId string) ([]dao.CommentData, error) {
 		}
 		//将评论id循环存入redis
 		for _, _comment := range commentInfoList {
-			insertRedisVideoCommentId(videoId, strconv.Itoa(int(_comment.Id)))
+			c.insertRedisVideoCommentId(videoId, strconv.Itoa(int(_comment.Id)))
 		}
 		log.Println("comment list save ids in redis")
 	}()
@@ -209,7 +209,7 @@ func (c CommentServiceImpl) GetList(videoId string) ([]dao.CommentData, error) {
 }
 
 // 在redis中存储video_id对应的comment_id 、 comment_id对应的video_id
-func insertRedisVideoCommentId(videoId string, commentId string) {
+func (c CommentServiceImpl) insertRedisVideoCommentId(videoId string, commentId string) {
 	key := fmt.Sprintf("%s:%s", utils.Comment, videoId)
 	ctx := context.Background()
 	//在redis-RdbVCid中存储video_id对应的comment_id

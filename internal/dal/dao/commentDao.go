@@ -21,7 +21,7 @@ type Comment struct {
 
 type CommentData struct {
 	Id         int64   `json:"id,omitempty"`
-	UserInfo   ResUser `json:"user_info"`
+	UserInfo   ResUser `json:"author"`
 	Content    string  `json:"content,omitempty"`
 	CreateDate string  `json:"create_date,omitempty"`
 }
@@ -34,8 +34,6 @@ func (Comment) TableName() string {
 // Count
 // 使用video id 查询Comment数量
 func Count(videoId int64) (int64, error) {
-	log.Println("CommentDao-Count: running") //函数已运行
-	//Init()
 	var count int64
 	//数据库中查询评论数量
 	err := db.GetMysqlDB().Model(Comment{}).Where(map[string]interface{}{"video_id": videoId, "cancel": utils.ValidComment}).Count(&count).Error

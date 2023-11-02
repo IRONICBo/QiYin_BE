@@ -13,17 +13,18 @@ type ResUser struct {
 	Signature       string `json:"signature"`
 	TotalFavorited  int64  `json:"total_favorited"`
 	FavoriteCount   int64  `json:"favorite_count"`
-	//TotalCollected  int64  `json:"total_collected"`
-	//CollectionCount   int64  `json:"collection_count"`
+	TotalCollected  int64  `json:"total_collected"`
+	CollectionCount int64  `json:"collection_count"`
 }
 
 type User struct {
 	Id              string `json:"id"`
 	Name            string `json:"name"`
 	Avatar          string `json:"avatar"`
-	BackgroundImage string `json:"background_image"`
-	Signature       string `json:"signature"`
+	BackgroundImage string `json:"background_image,omitempty"`
+	Signature       string `json:"signature,omitempty"`
 	Password        string `json:"password,omitempty"`
+	//	todo 加风格标签  性别等
 }
 
 // TableName 修改表名映射

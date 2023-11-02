@@ -12,8 +12,9 @@ import (
 // Search
 // @Tags video
 // @Summary Search
-// @Description Test API
+// @Description search videos by text
 // @Produce application/json
+// @Param searchValue query string true "query text"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/search [get].
 func Search(c *gin.Context) {
@@ -34,7 +35,7 @@ func Search(c *gin.Context) {
 // GetHots
 // @Tags video
 // @Summary GetHots
-// @Description Test API
+// @Description hot list
 // @Produce application/json
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/hots [get].

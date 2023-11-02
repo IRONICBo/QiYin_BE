@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-type FavoriteMQ struct {
+type CollectionMQ struct {
 	RabbitMQ
 	channel   *amqp.Channel
 	queueName string
@@ -19,20 +19,20 @@ type FavoriteMQ struct {
 	key       string
 }
 
-// NewFavoriteRabbitMQ 获取favoriteMQ的对应队列。
-func NewFavoriteRabbitMQ(queueName string) *FavoriteMQ {
-	favoriteMQ := &FavoriteMQ{
+// NewCollectionRabbitMQ 获取collectionMQ的对应队列。
+func NewCollectionRabbitMQ(queueName string) *CollectionMQ {
+	collectionMQ := &CollectionMQ{
 		RabbitMQ:  *GetRabbitMQ(),
 		queueName: queueName,
 	}
-	cha, err := favoriteMQ.conn.Channel()
-	favoriteMQ.channel = cha
+	cha, err := collectionMQ.conn.Channel()
+	collectionMQ.channel = cha
 	GetRabbitMQ().failOnErr(err, "获取通道失败")
-	return favoriteMQ
+	return collectionMQ
 }
 
-// Publish favorite操作的发布配置。
-func (l *FavoriteMQ) Publish(message string) {
+// Publish collection操作的发布配置。
+func (l *CollectionMQ) Publish(message string) {
 
 	_, err := l.channel.QueueDeclare(
 		l.queueName,
@@ -66,8 +66,8 @@ func (l *FavoriteMQ) Publish(message string) {
 
 }
 
-// Consumer favorite关系的消费逻辑。
-func (l *FavoriteMQ) Consumer() {
+// Consumer collection关系的消费逻辑。
+func (l *CollectionMQ) Consumer() {
 
 	_, err := l.channel.QueueDeclare(l.queueName, false, false, false, false, nil)
 
@@ -96,12 +96,12 @@ func (l *FavoriteMQ) Consumer() {
 
 	forever := make(chan bool)
 	switch l.queueName {
-	case "favorite_add":
+	case "collection_add":
 		//点赞消费队列
-		go l.consumerFavoriteAdd(messages)
-	case "favorite_del":
+		go l.consumerCollectionAdd(messages)
+	case "collection_del":
 		//取消赞消费队列
-		go l.consumerFavoriteDel(messages)
+		go l.consumerCollectionDel(messages)
 
 	}
 
@@ -111,8 +111,8 @@ func (l *FavoriteMQ) Consumer() {
 
 }
 
-// consumerFavoriteAdd 赞关系添加的消费方式。
-func (l *FavoriteMQ) consumerFavoriteAdd(messages <-chan amqp.Delivery) {
+// consumerCollectionAdd 赞关系添加的消费方式。
+func (l *CollectionMQ) consumerCollectionAdd(messages <-chan amqp.Delivery) {
 	for d := range messages {
 		// 参数解析。
 		params := strings.Split(fmt.Sprintf("%s", d.Body), " ")
@@ -121,27 +121,27 @@ func (l *FavoriteMQ) consumerFavoriteAdd(messages <-chan amqp.Delivery) {
 		//最多尝试操作数据库的次数
 		for i := 0; i < utils.Attempts; i++ {
 			flag := false //默认无问题
-			//如果查询没有数据，用来生成该条点赞信息，存储在favoriteData中
-			var favoriteData dao.Favorite
+			//如果查询没有数据，用来生成该条点赞信息，存储在collectionData中
+			var collectionData dao.Collection
 			//先查询是否有这条数据
-			favoriteInfo, err := dao.GetFavoriteInfo(userId, videoId)
-			//如果有问题，说明查询数据库失败，打印错误信息err:"get favoriteInfo failed"
+			collectionInfo, err := dao.GetCollectionInfo(userId, videoId)
+			//如果有问题，说明查询数据库失败，打印错误信息err:"get collectionInfo failed"
 			if err != nil {
 				log.Printf(err.Error())
 				flag = true //出现问题
 			} else {
-				if favoriteInfo == (dao.Favorite{}) { //没查到这条数据，则新建这条数据；
-					favoriteData.UserId = string(userId)   //插入userId
-					favoriteData.VideoId = videoId         //插入videoId
-					favoriteData.Cancel = utils.IsFavorite //插入点赞cancel=0
+				if collectionInfo == (dao.Collection{}) { //没查到这条数据，则新建这条数据；
+					collectionData.UserId = string(userId)     //插入userId
+					collectionData.VideoId = videoId           //插入videoId
+					collectionData.Cancel = utils.IsCollection //插入点赞cancel=0
 					//如果有问题，说明插入数据库失败，打印错误信息err:"insert data fail"
-					if err := dao.InsertFavorite(favoriteData); err != nil {
+					if err := dao.InsertCollection(collectionData); err != nil {
 						log.Printf(err.Error())
 						flag = true //出现问题
 					}
 				} else { //查到这条数据,更新即可;
 					//如果有问题，说明插入数据库失败，打印错误信息err:"update data fail"
-					if err := dao.UpdateFavorite(userId, videoId, utils.IsFavorite); err != nil {
+					if err := dao.UpdateCollection(userId, videoId, utils.IsCollection); err != nil {
 						log.Printf(err.Error())
 						flag = true //出现问题
 					}
@@ -155,8 +155,8 @@ func (l *FavoriteMQ) consumerFavoriteAdd(messages <-chan amqp.Delivery) {
 	}
 }
 
-// consumerFavoriteDel 赞关系删除的消费方式。
-func (l *FavoriteMQ) consumerFavoriteDel(messages <-chan amqp.Delivery) {
+// consumerCollectionDel 赞关系删除的消费方式。
+func (l *CollectionMQ) consumerCollectionDel(messages <-chan amqp.Delivery) {
 	for d := range messages {
 		// 参数解析。
 		params := strings.Split(fmt.Sprintf("%s", d.Body), " ")
@@ -167,19 +167,19 @@ func (l *FavoriteMQ) consumerFavoriteDel(messages <-chan amqp.Delivery) {
 			flag := false //默认无问题
 			//取消赞行为，只有当前状态是点赞状态才会发起取消赞行为，所以如果查询到，必然是cancel==0(点赞)
 			//先查询是否有这条数据
-			favoriteInfo, err := dao.GetFavoriteInfo(userId, videoId)
-			//如果有问题，说明查询数据库失败，返回错误信息err:"get favoriteInfo failed"
+			collectionInfo, err := dao.GetCollectionInfo(userId, videoId)
+			//如果有问题，说明查询数据库失败，返回错误信息err:"get collectionInfo failed"
 			if err != nil {
 				log.Printf(err.Error())
 				flag = true //出现问题
 			} else {
-				if favoriteInfo == (dao.Favorite{}) { //只有当前是点赞状态才能取消点赞这个行为
+				if collectionInfo == (dao.Collection{}) { //只有当前是点赞状态才能取消点赞这个行为
 					// 所以如果查询不到数据则返回错误信息:"can't find data,this action invalid"
 					log.Printf(errors.New("can't find data,this action invalid").Error())
 				} else {
 					//如果查询到数据，则更新为取消赞状态
 					//如果有问题，说明插入数据库失败，打印错误信息err:"update data fail"
-					if err := dao.UpdateFavorite(userId, videoId, utils.UnFavorite); err != nil {
+					if err := dao.UpdateCollection(userId, videoId, utils.UnCollection); err != nil {
 						log.Printf(err.Error())
 						flag = true
 					}
@@ -193,14 +193,14 @@ func (l *FavoriteMQ) consumerFavoriteDel(messages <-chan amqp.Delivery) {
 	}
 }
 
-var RmqFavoriteAdd *FavoriteMQ
-var RmqFavoriteDel *FavoriteMQ
+var RmqCollectionAdd *CollectionMQ
+var RmqCollectionDel *CollectionMQ
 
-// InitFavoriteRabbitMQ 初始化rabbitMQ连接。
-func InitFavoriteRabbitMQ() {
-	RmqFavoriteAdd = NewFavoriteRabbitMQ("favorite_add")
-	go RmqFavoriteAdd.Consumer()
+// InitCollectionRabbitMQ 初始化rabbitMQ连接。
+func InitCollectionRabbitMQ() {
+	RmqCollectionAdd = NewCollectionRabbitMQ("collection_add")
+	go RmqCollectionAdd.Consumer()
 
-	RmqFavoriteDel = NewFavoriteRabbitMQ("favorite_del")
-	go RmqFavoriteDel.Consumer()
+	RmqCollectionDel = NewCollectionRabbitMQ("collection_del")
+	go RmqCollectionDel.Consumer()
 }
