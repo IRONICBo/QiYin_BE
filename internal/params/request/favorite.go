@@ -7,7 +7,7 @@ type FavoriteParams struct {
 }
 
 type CollectionParams struct {
-	//UserID     string `json:userId`
+	// UserID     string `json:userId`
 	VideoId    int64 `json:"videoId"`
 	ActionType int32 `json:"actionType"` // 1 点赞，-1 取消
 }

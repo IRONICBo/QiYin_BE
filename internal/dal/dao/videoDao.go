@@ -12,7 +12,7 @@ type Video struct {
 	PlayUrl     string    `json:"play_url"`
 	CoverUrl    string    `json:"cover_url"`
 	PublishTime time.Time `json:"publish_time"`
-	Title       string    `json:"title"` //视频名
+	Title       string    `json:"title"` // 视频名
 }
 
 type ResVideo struct {
@@ -51,11 +51,11 @@ func GetVideoByTitle(value string) ([]ResVideo, error) {
 }
 
 // GetVideoById
-// 通过userId 搜索视频
+// 通过userId 搜索视频.
 func GetVideoById(videoId int64) (ResVideo, error) {
 	var videoList ResVideo
 	result := db.GetMysqlDB().Table("videos").Where("id", videoId).Preload("Author").First(&videoList)
-	//如果出现问题，返回对应到空，并且返回error
+	// 如果出现问题，返回对应到空，并且返回error
 	if result.Error != nil {
 		return ResVideo{}, result.Error
 	}

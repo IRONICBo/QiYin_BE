@@ -115,21 +115,21 @@ func (l *FavoriteMQ) consumerFavoriteAdd(messages <-chan amqp.Delivery) {
 		videoId, _ := strconv.ParseInt(params[1], 10, 64)
 		// 最多尝试操作数据库的次数
 		for i := 0; i < utils.Attempts; i++ {
-			flag := false //默认无问题
-			//如果查询没有数据，用来生成该条点赞信息，存储在favoriteData中
+			flag := false // 默认无问题
+			// 如果查询没有数据，用来生成该条点赞信息，存储在favoriteData中
 			var favoriteData dao.Favorite
-			//先查询是否有这条数据
+			// 先查询是否有这条数据
 			favoriteInfo, err := dao.GetFavoriteInfo(userId, videoId)
-			//如果有问题，说明查询数据库失败，打印错误信息err:"get favoriteInfo failed"
+			// 如果有问题，说明查询数据库失败，打印错误信息err:"get favoriteInfo failed"
 			if err != nil {
 				log.Printf(err.Error())
 				flag = true // 出现问题
 			} else {
-				if favoriteInfo == (dao.Favorite{}) { //没查到这条数据，则新建这条数据；
-					favoriteData.UserId = string(userId)   //插入userId
-					favoriteData.VideoId = videoId         //插入videoId
-					favoriteData.Cancel = utils.IsFavorite //插入点赞cancel=0
-					//如果有问题，说明插入数据库失败，打印错误信息err:"insert data fail"
+				if favoriteInfo == (dao.Favorite{}) { // 没查到这条数据，则新建这条数据；
+					favoriteData.UserId = string(userId)   // 插入userId
+					favoriteData.VideoId = videoId         // 插入videoId
+					favoriteData.Cancel = utils.IsFavorite // 插入点赞cancel=0
+					// 如果有问题，说明插入数据库失败，打印错误信息err:"insert data fail"
 					if err := dao.InsertFavorite(favoriteData); err != nil {
 						log.Printf(err.Error())
 						flag = true // 出现问题
@@ -159,21 +159,21 @@ func (l *FavoriteMQ) consumerFavoriteDel(messages <-chan amqp.Delivery) {
 		videoId, _ := strconv.ParseInt(params[1], 10, 64)
 		// 最多尝试操作数据库的次数
 		for i := 0; i < utils.Attempts; i++ {
-			flag := false //默认无问题
-			//取消赞行为，只有当前状态是点赞状态才会发起取消赞行为，所以如果查询到，必然是cancel==0(点赞)
-			//先查询是否有这条数据
+			flag := false // 默认无问题
+			// 取消赞行为，只有当前状态是点赞状态才会发起取消赞行为，所以如果查询到，必然是cancel==0(点赞)
+			// 先查询是否有这条数据
 			favoriteInfo, err := dao.GetFavoriteInfo(userId, videoId)
-			//如果有问题，说明查询数据库失败，返回错误信息err:"get favoriteInfo failed"
+			// 如果有问题，说明查询数据库失败，返回错误信息err:"get favoriteInfo failed"
 			if err != nil {
 				log.Printf(err.Error())
 				flag = true // 出现问题
 			} else {
-				if favoriteInfo == (dao.Favorite{}) { //只有当前是点赞状态才能取消点赞这个行为
+				if favoriteInfo == (dao.Favorite{}) { // 只有当前是点赞状态才能取消点赞这个行为
 					// 所以如果查询不到数据则返回错误信息:"can't find data,this action invalid"
 					log.Printf(errors.New("can't find data,this action invalid").Error())
 				} else {
-					//如果查询到数据，则更新为取消赞状态
-					//如果有问题，说明插入数据库失败，打印错误信息err:"update data fail"
+					// 如果查询到数据，则更新为取消赞状态
+					// 如果有问题，说明插入数据库失败，打印错误信息err:"update data fail"
 					if err := dao.UpdateFavorite(userId, videoId, utils.UnFavorite); err != nil {
 						log.Printf(err.Error())
 						flag = true
