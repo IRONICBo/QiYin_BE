@@ -38,6 +38,7 @@ func main() {
 		// Add your tables here.
 		dao.User{},
 		dao.Favorite{},
+		dao.Collection{},
 		dao.Video{},
 		dao.Comment{},
 	}

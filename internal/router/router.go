@@ -46,6 +46,14 @@ func InitRouter() *gin.Engine {
 		favorite := apiv1.Group("/favorite/")
 		{
 			favorite.POST("/action", jwt.Auth(), api.FavoriteAction)
+			favorite.GET("/list", api.GetFavoriteList)
+		}
+
+		// 点赞
+		collection := apiv1.Group("/collection/")
+		{
+			collection.POST("/action", jwt.Auth(), api.CollectionAction)
+			collection.GET("/list", api.GetCollectionList)
 		}
 
 		// 评论

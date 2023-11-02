@@ -219,7 +219,6 @@ func (r *RealRedisClient) ZAdd(ctx context.Context, key string, members ...*redi
 
 // ZIncrBy zset add.
 func (r *RealRedisClient) ZIncrBy(ctx context.Context, key string, increment float64, member string) *redis.FloatCmd {
-	fmt.Println("sssssssssssssssssssssssssss")
 	return r.client.ZIncrBy(ctx, key, increment, member)
 }
 

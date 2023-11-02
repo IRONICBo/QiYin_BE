@@ -12,9 +12,9 @@ import (
 // UserLogin
 // @Tags user
 // @Summary UserLogin
-// @Description Test API
+// @Description user login
 // @Produce application/json
-// @Param data body requestparams.UserParams true "UserParamsUserParams"
+// @Param data body requestparams.UserParams true "UserParams"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/login [post].
 func UserLogin(c *gin.Context) {
@@ -39,9 +39,9 @@ func UserLogin(c *gin.Context) {
 // UserRegister
 // @Tags user
 // @Summary UserRegister
-// @Description Test API
+// @Description user register
 // @Produce application/json
-// @Param data body requestparams.UserParams true "UserParamsUserParams"
+// @Param data body requestparams.UserParams true "UserParams"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/register [post].
 func UserRegister(c *gin.Context) {
@@ -66,9 +66,9 @@ func UserRegister(c *gin.Context) {
 // UserInfo
 // @Tags user
 // @Summary UserInfo
-// @Description Test API
+// @Description get userinfo by id
 // @Produce application/json
-// @Param userId query string true "userId"
+// @Param userId query string true "query user id"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/userinfo [get].
 func UserInfo(c *gin.Context) {

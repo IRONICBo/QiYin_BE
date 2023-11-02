@@ -15,6 +15,7 @@ import (
 type UserServiceImpl struct {
 	Service
 	FavoriteService
+	CollectionService
 }
 
 // NewUserService return new service with gin context.
@@ -23,7 +24,8 @@ func NewUserService(c *gin.Context) *UserServiceImpl {
 		Service: Service{
 			ctx: c,
 		},
-		FavoriteService: &FavoriteServiceImpl{},
+		FavoriteService:   &FavoriteServiceImpl{},
+		CollectionService: &CollectionServiceImpl{},
 	}
 }
 
@@ -153,58 +155,17 @@ func (usi *UserServiceImpl) GetUserById(id string) (dao.ResUser, error) {
 	}
 	log.Println("Query User Success")
 
-	u := GetLikeService() // 解决循环依赖
+	u := GetFavoriteService() //解决循环依赖
 	// 获取点赞以及被点赞的数量
-	totalFavorited, _ := u.TotalFavourite(id)
-	favoritedCount, _ := u.FavouriteVideoCount(id)
+	totalFavorited, _ := u.TotalFavorite(id)
+	favoritedCount, _ := u.FavoriteVideoCount(id)
+	c := GetCollectionService()
+	totalCollection, _ := c.TotalCollection(id)
+	collectionCount, _ := c.CollectionVideoCount(id)
 	user.TotalFavorited = totalFavorited
 	user.FavoriteCount = favoritedCount
+	user.TotalCollected = totalCollection
+	user.CollectionCount = collectionCount
 
 	return user, nil
 }
-
-//
-//// GetUserByIdWithCurId 已登录(curID)情况下,根据user_id获得User对象
-//func (usi *UserServiceImpl) GetUserByIdWithCurId(id int64, curId int64) (User, error) {
-//	user := User{
-//		Id:             0,
-//		Name:           "",
-//		FollowCount:    0,
-//		FollowerCount:  0,
-//		IsFollow:       false,
-//		TotalFavorited: 0,
-//		FavoriteCount:  0,
-//	}
-//	User, err := dao.GetTableUserById(id)
-//	if err != nil {
-//		log.Println("Err:", err.Error())
-//		log.Println("User Not Found")
-//		return user, err
-//	}
-//	log.Println("Query User Success")
-//	followCount, err := usi.GetFollowingCnt(id)
-//	if err != nil {
-//		log.Println("Err:", err.Error())
-//	}
-//	followerCount, err := usi.GetFollowerCnt(id)
-//	if err != nil {
-//		log.Println("Err:", err.Error())
-//	}
-//	isfollow, err := usi.IsFollowing(curId, id)
-//	if err != nil {
-//		log.Println("Err:", err.Error())
-//	}
-//	u := GetFavoriteService() //解决循环依赖
-//	totalFavorited, _ := u.TotalFavourite(id)
-//	favoritedCount, _ := u.FavouriteVideoCount(id)
-//	user = User{
-//		Id:             id,
-//		Name:           User.Name,
-//		FollowCount:    followCount,
-//		FollowerCount:  followerCount,
-//		IsFollow:       isfollow,
-//		TotalFavorited: totalFavorited,
-//		FavoriteCount:  favoritedCount,
-//	}
-//	return user, nil
-//}

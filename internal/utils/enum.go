@@ -3,7 +3,7 @@ package utils
 const (
 	// redis中key的状态.
 	Favorite          = "favorite"
-	Colloection       = "collection"
+	Collection        = "collection"
 	Comment           = "comment"
 	CommentCV         = "commentCV"
 	Search            = "search"
@@ -13,8 +13,10 @@ const (
 	OneDay   = 60 * 60 * 24
 	DateTime = "2006-01-02 15:04:05"
 
-	IsFavorite = 1
-	Unlike     = -1
+	IsFavorite   = 1
+	UnFavorite   = -1
+	IsCollection = 1
+	UnCollection = -1
 
 	Attempts = 3 // 最大操作次数
 

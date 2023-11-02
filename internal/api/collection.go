@@ -1,8 +1,6 @@
 package api
 
 import (
-	"strconv"
-
 	"github.com/IRONICBo/QiYin_BE/internal/common"
 	"github.com/IRONICBo/QiYin_BE/internal/common/response"
 	"github.com/IRONICBo/QiYin_BE/internal/middleware/jwt"
@@ -10,18 +8,19 @@ import (
 	"github.com/IRONICBo/QiYin_BE/internal/service"
 	"github.com/IRONICBo/QiYin_BE/pkg/log"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
-// FavoriteAction
+// CollectionAction
 // @Tags favorite
-// @Summary FavoriteAction
-// @Description like or dislike
+// @Summary CollectionAction
+// @Description collect or cancel
+// @Param data body requestparams.CollectionParams true "CollectionParams"
 // @Produce application/json
-// @Param data body requestparams.FavoriteParams true "FavoriteParams"
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/favorite/action [post].
-func FavoriteAction(c *gin.Context) {
-	var params requestparams.FavoriteParams
+func CollectionAction(c *gin.Context) {
+	var params requestparams.CollectionParams
 	err := c.ShouldBindJSON(&params)
 	if err != nil {
 		response.FailWithCode(common.INVALID_PARAMS, c)
@@ -33,11 +32,11 @@ func FavoriteAction(c *gin.Context) {
 		response.FailWithCode(common.INVALID_PARAMS, c)
 		return
 	}
-	svc := service.NewFavoriteService(c)
-	err = svc.FavoriteAction(userId, strconv.FormatInt(params.VideoId, 10), params.ActionType)
+	svc := service.NewCollectionService(c)
+	err = svc.CollectionAction(userId, strconv.FormatInt(params.VideoId, 10), params.ActionType)
 
 	if err != nil {
-		log.Debug("Favorite operation error", err)
+		log.Debug("Collection operation error", err)
 		response.FailWithCode(common.ERROR, c)
 		return
 	}
@@ -45,23 +44,23 @@ func FavoriteAction(c *gin.Context) {
 	response.Success(c)
 }
 
-// GetFavoriteList
+// GetCollectionList
 // @Tags favorite
-// @Summary GetFavoriteList
-// @Description get favorite video list
-// @Produce application/json
+// @Summary GetCollectionList
+// @Description get collection video list
 // @Param userId query string true "query user id"
+// @Produce application/json
 // @Success 200 {object}  response.Response{msg=string} "Success"
 // @Router /api/v1/favorite/list [get].
-func GetFavoriteList(c *gin.Context) {
+func GetCollectionList(c *gin.Context) {
 	// 要查看的用户的id
 	strUserId := c.Query("userId")
 	// 自己的id  如果登录之后不是""  这是因为如果登录之后需要获取到curid 是否点赞过该视频，没有的话默认为false
 	curUserId := jwt.GetUserId(c)
-	svc := service.NewFavoriteService(c)
-	u, err := svc.FavoriteList(strUserId, curUserId)
+	svc := service.NewCollectionService(c)
+	u, err := svc.CollectionList(strUserId, curUserId)
 	if err != nil {
-		log.Debug("Favorite count error", err)
+		log.Debug("Collection count error", err)
 		response.FailWithCode(common.ERROR, c)
 		return
 	}

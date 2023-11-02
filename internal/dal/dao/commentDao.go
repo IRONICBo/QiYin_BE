@@ -22,7 +22,7 @@ type Comment struct {
 
 type CommentData struct {
 	Id         int64   `json:"id,omitempty"`
-	UserInfo   ResUser `json:"user_info"`
+	UserInfo   ResUser `json:"author"`
 	Content    string  `json:"content,omitempty"`
 	CreateDate string  `json:"create_date,omitempty"`
 }
