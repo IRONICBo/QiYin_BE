@@ -1,4 +1,48 @@
 definitions:
+  requestparams.CollectionParams:
+    properties:
+      actionType:
+        description: 1 点赞，-1 取消
+        type: integer
+      videoId:
+        description: UserID     string `json:userId`
+        type: integer
+    type: object
+  requestparams.CommentAddParams:
+    properties:
+      commentText:
+        type: string
+      videoId:
+        type: integer
+    type: object
+  requestparams.CommentDelParams:
+    properties:
+      commentId:
+        type: integer
+    type: object
+  requestparams.FavoriteParams:
+    properties:
+      actionType:
+        description: 1 点赞，-1 取消
+        type: integer
+      videoId:
+        description: UserID     string `json:userId`
+        type: integer
+    type: object
+  requestparams.QiNiuTokenParams:
+    properties:
+      ticket:
+        type: string
+    required:
+    - ticket
+    type: object
+  requestparams.UserParams:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
   response.Response:
     properties:
       code:
@@ -13,6 +57,159 @@ info:
   title: QiYin Backend
   version: v0.0.0
 paths:
+  /api/v1/comment/add:
+    post:
+      description: add comment
+      parameters:
+      - description: CommentAddParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.CommentAddParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: CommentAdd
+      tags:
+      - comment
+  /api/v1/comment/delete:
+    post:
+      description: Test API
+      parameters:
+      - description: CommentDelParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.CommentDelParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: delete comment
+      tags:
+      - comment
+  /api/v1/comment/list:
+    get:
+      description: get comment list by videoId
+      parameters:
+      - description: query video id
+        in: query
+        name: videoId
+        required: true
+        type: string
+      - description: videoId
+        in: query
+        name: videoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: CommentList
+      tags:
+      - comment
+  /api/v1/favorite/action:
+    post:
+      description: like or dislike
+      parameters:
+      - description: FavoriteParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.FavoriteParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: FavoriteAction
+      tags:
+      - favorite
+  /api/v1/favorite/list:
+    get:
+      description: get favorite video list
+      parameters:
+      - description: query user id
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetFavoriteList
+      tags:
+      - favorite
+  /api/v1/login:
+    post:
+      description: user login
+      parameters:
+      - description: UserParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.UserParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserLogin
+      tags:
+      - user
   /api/v1/ping:
     post:
       description: Test API
@@ -31,6 +228,146 @@ paths:
       summary: Ping
       tags:
       - Ping
+  /api/v1/qiniu/pfop/callback:
+    get:
+      description: Get QiNiu Pfop callback result
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetPfopCallback
+      tags:
+      - QiNiu
+  /api/v1/qiniu/token:
+    post:
+      description: Get QiNiu upload token
+      parameters:
+      - description: QiNiuTokenParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.QiNiuTokenParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserLogin
+      tags:
+      - QiNiu
+  /api/v1/register:
+    post:
+      description: user register
+      parameters:
+      - description: UserParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.UserParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserRegister
+      tags:
+      - user
+  /api/v1/userinfo:
+    get:
+      description: get userinfo by id
+      parameters:
+      - description: query user id
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserInfo
+      tags:
+      - user
+  /api/v1/video/hots:
+    get:
+      description: hot list
+      parameters:
+      - description: searchValue
+        in: query
+        name: searchValue
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetHots
+      tags:
+      - video
+  /api/v1/video/search:
+    get:
+      description: search videos by text
+      parameters:
+      - description: searchValue
+        in: query
+        name: searchValue
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: Search
+      tags:
+      - video
 securityDefinitions:
   ApiKeyAuth:
     in: header

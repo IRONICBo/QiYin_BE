@@ -1,6 +1,6 @@
 package service
 
-// FavoriteService 定义点赞状态和点赞数量
+// FavoriteService 定义点赞状态和点赞数量.
 type FavoriteService interface {
 	/*
 	   1.其他模块(video)需要使用的业务方法。

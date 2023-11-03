@@ -71,6 +71,13 @@ func InitRouter() *gin.Engine {
 			video.GET("/search", api.Search)
 			video.GET("/hots", api.GetHots)
 		}
+
+		// QiNiu
+		qiniu := apiv1.Group("/qiniu")
+		{
+			qiniu.POST("/token", api.GetUploadToken)
+			qiniu.POST("/pfop/callback", api.GetPfopCallback)
+		}
 	}
 
 	return r

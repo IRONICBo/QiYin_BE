@@ -47,6 +47,12 @@ func ConfigInit(configPath string) {
 			Username: GetString("rabbitmq.username"),
 			Password: GetString("rabbitmq.password"),
 		},
+		QiNiu: QiNiu{
+			AccessKey: GetString("qiniu.access_key"),
+			SecretKey: GetString("qiniu.secret_key"),
+			Bucket:    GetString("qiniu.bucket"),
+			Domain:    GetString("qiniu.domain"),
+		},
 	}
 }
 
@@ -57,6 +63,7 @@ type config struct {
 	Mysql    Mysql
 	Redis    Redis
 	RabbitMQ RabbitMQ
+	QiNiu    QiNiu
 }
 
 // App config.
@@ -100,9 +107,18 @@ type Redis struct {
 	Database int    `mapstructure:"database"`
 }
 
+// RabbitMQ config.
 type RabbitMQ struct {
 	Ip       string `mapstructure:"ip"`
 	Port     int    `mapstructure:"port"`
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
+}
+
+// QiNiu config.
+type QiNiu struct {
+	AccessKey string `mapstructure:"access_key"`
+	SecretKey string `mapstructure:"secret_key"`
+	Bucket    string `mapstructure:"bucket"`
+	Domain    string `mapstructure:"domain"`
 }

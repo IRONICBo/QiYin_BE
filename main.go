@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/IRONICBo/QiYin_BE/internal/middleware/rabbitmq"
 
 	"github.com/IRONICBo/QiYin_BE/internal/config"

@@ -14,9 +14,9 @@ import (
 // @Summary Search
 // @Description search videos by text
 // @Produce application/json
-// @Param searchValue query string true "query text"
+// @Param searchValue query string true "searchValue"
 // @Success 200 {object}  response.Response{msg=string} "Success"
-// @Router /api/v1/search [get].
+// @Router /api/v1/video/search [get].
 func Search(c *gin.Context) {
 	searchValue := c.Query("searchValue")
 
@@ -37,8 +37,9 @@ func Search(c *gin.Context) {
 // @Summary GetHots
 // @Description hot list
 // @Produce application/json
+// @Param searchValue query string true "searchValue"
 // @Success 200 {object}  response.Response{msg=string} "Success"
-// @Router /api/v1/hots [get].
+// @Router /api/v1/video/hots [get].
 func GetHots(c *gin.Context) {
 	svc := service.NewVideoService(c)
 	u, err := svc.GetHots()

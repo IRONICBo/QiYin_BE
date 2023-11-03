@@ -1,8 +1,9 @@
 package dao
 
 import (
-	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
 	"log"
+
+	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
 )
 
 type ResUser struct {
@@ -27,12 +28,12 @@ type User struct {
 	//	todo 加风格标签  性别等
 }
 
-// TableName 修改表名映射
+// TableName 修改表名映射.
 func (user User) TableName() string {
 	return "users"
 }
 
-// GetTableUserList 获取全部TableUser对象
+// GetTableUserList 获取全部TableUser对象.
 func GetTableUserList() ([]ResUser, error) {
 	tableUsers := []ResUser{}
 	if err := db.GetMysqlDB().Table("users").Find(&tableUsers).Error; err != nil {
@@ -51,7 +52,7 @@ func QueryUserLogin(username string, key string) (ResUser, bool) {
 	return user, true
 }
 
-// GetTableUserByUsername 根据username获得TableUser对象
+// GetTableUserByUsername 根据username获得TableUser对象.
 func GetTableUserByUsername(name string) (User, error) {
 	user := User{}
 	if err := db.GetMysqlDB().Where("name = ?", name).First(&user).Error; err != nil {
@@ -61,7 +62,7 @@ func GetTableUserByUsername(name string) (User, error) {
 	return user, nil
 }
 
-// GetTableUserById 根据user_id获得TableUser对象
+// GetTableUserById 根据user_id获得TableUser对象.
 func GetTableUserById(id string) (ResUser, error) {
 	user := ResUser{}
 	if err := db.GetMysqlDB().Table("users").Where("id = ?", id).First(&user).Error; err != nil {
@@ -71,7 +72,7 @@ func GetTableUserById(id string) (ResUser, error) {
 	return user, nil
 }
 
-// InsertTableUser 将tableUser插入表内
+// InsertTableUser 将tableUser插入表内.
 func InsertTableUser(user *User) bool {
 	if err := db.GetMysqlDB().Create(&user).Error; err != nil {
 		log.Println(err.Error())

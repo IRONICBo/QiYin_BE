@@ -38,3 +38,9 @@ rabbitmq:
   port: 5672
   username: guest
   password: guest
+
+qiniu:
+  access_key: 
+  secret_key: 
+  bucket: 
+  domain: 

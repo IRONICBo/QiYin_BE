@@ -1,6 +1,8 @@
 package api
 
 import (
+	"strconv"
+
 	"github.com/IRONICBo/QiYin_BE/internal/common"
 	"github.com/IRONICBo/QiYin_BE/internal/common/response"
 	"github.com/IRONICBo/QiYin_BE/internal/middleware/jwt"
@@ -8,7 +10,6 @@ import (
 	"github.com/IRONICBo/QiYin_BE/internal/service"
 	"github.com/IRONICBo/QiYin_BE/pkg/log"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 // FavoriteAction

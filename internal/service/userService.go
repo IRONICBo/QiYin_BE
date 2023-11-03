@@ -22,7 +22,7 @@ type UserService interface {
 	// InsertTableUser 将tableUser插入表内
 	InsertTableUser(User *dao.User) bool
 
-	//login with user
+	// login with user
 	Login(param *requestparams.UserParams) (*responseparams.UserResponse, error)
 
 	/*

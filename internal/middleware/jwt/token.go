@@ -8,10 +8,10 @@ import (
 )
 
 // Auth 鉴权中间件
-// 若用户携带的token正确,解析token,将userId放入上下文context中并放行;否则,返回错误信息
+// 若用户携带的token正确,解析token,将userId放入上下文context中并放行;否则,返回错误信息.
 func Auth() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		//auth := c.PostForm("token")
+		// auth := c.PostForm("token")
 		token := context.GetHeader("token")
 		if len(token) == 0 {
 			token = context.PostForm("token")

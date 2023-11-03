@@ -27,8 +27,6 @@ type JWT struct {
 func (h *JWT) Patterns() []string {
 	return []string{
 		"/api/v1/user/*",
-		"/api/v1/platform/*",
-		"/api/v1/login/exit",
 	}
 }
 
