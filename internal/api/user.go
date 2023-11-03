@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/IRONICBo/QiYin_BE/internal/common"
 	"github.com/IRONICBo/QiYin_BE/internal/common/response"
+	"github.com/IRONICBo/QiYin_BE/internal/dal/dao"
 	requestparams "github.com/IRONICBo/QiYin_BE/internal/params/request"
 	"github.com/IRONICBo/QiYin_BE/internal/service"
 	"github.com/IRONICBo/QiYin_BE/pkg/log"
@@ -82,4 +83,26 @@ func UserInfo(c *gin.Context) {
 		return
 	}
 	response.SuccessWithData(u, c)
+}
+
+// CheckToken
+// @Tags user
+// @Summary CheckToken
+// @Description Check whether the token is valid
+// @Produce application/json
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/check [get].
+func CheckToken(c *gin.Context) {
+	userId := c.GetString("userId")
+	if len(userId) == 0 {
+		response.FailWithData(false, c)
+		return
+	}
+	//	 简单的根据id查找用户信息 并返回
+	user, err := dao.GetTableUserById(userId)
+	if err != nil {
+		response.FailWithData(false, c)
+		return
+	}
+	response.SuccessWithData(user, c)
 }

@@ -41,6 +41,7 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/login", api.UserLogin)
 		apiv1.POST("/register", api.UserRegister)
 		apiv1.GET("/userinfo", api.UserInfo)
+		apiv1.GET("/check", jwt.Auth(), api.CheckToken)
 
 		// 点赞
 		favorite := apiv1.Group("/favorite/")
