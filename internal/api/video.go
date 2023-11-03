@@ -16,7 +16,7 @@ import (
 // @Produce application/json
 // @Param searchValue query string true "searchValue"
 // @Success 200 {object}  response.Response{msg=string} "Success"
-// @Router /api/v1/search [get].
+// @Router /api/v1/video/search [get].
 func Search(c *gin.Context) {
 	searchValue := c.Query("searchValue")
 
@@ -39,7 +39,7 @@ func Search(c *gin.Context) {
 // @Produce application/json
 // @Param searchValue query string true "searchValue"
 // @Success 200 {object}  response.Response{msg=string} "Success"
-// @Router /api/v1/hots [get].
+// @Router /api/v1/video/hots [get].
 func GetHots(c *gin.Context) {
 	svc := service.NewVideoService(c)
 	u, err := svc.GetHots()

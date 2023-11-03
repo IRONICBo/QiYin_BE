@@ -74,7 +74,8 @@ func InitRouter() *gin.Engine {
 		// QiNiu
 		qiniu := apiv1.Group("/qiniu")
 		{
-			qiniu.GET("/token", api.GetUploadToken)
+			qiniu.POST("/token", api.GetUploadToken)
+			qiniu.POST("/pfop/callback", api.GetPfopCallback)
 		}
 	}
 

@@ -1,4 +1,13 @@
 definitions:
+  requestparams.CollectionParams:
+    properties:
+      actionType:
+        description: 1 点赞，-1 取消
+        type: integer
+      videoId:
+        description: UserID     string `json:userId`
+        type: integer
+    type: object
   requestparams.CommentAddParams:
     properties:
       commentText:
@@ -19,6 +28,13 @@ definitions:
       videoId:
         description: UserID     string `json:userId`
         type: integer
+    type: object
+  requestparams.QiNiuTokenParams:
+    properties:
+      ticket:
+        type: string
+    required:
+    - ticket
     type: object
   requestparams.UserParams:
     properties:
@@ -43,7 +59,7 @@ info:
 paths:
   /api/v1/comment/add:
     post:
-      description: Test API
+      description: add comment
       parameters:
       - description: CommentAddParams
         in: body
@@ -88,13 +104,18 @@ paths:
                 msg:
                   type: string
               type: object
-      summary: CommentAction
+      summary: delete comment
       tags:
       - comment
   /api/v1/comment/list:
     get:
-      description: Test API
+      description: get comment list by videoId
       parameters:
+      - description: query video id
+        in: query
+        name: videoId
+        required: true
+        type: string
       - description: videoId
         in: query
         name: videoId
@@ -117,7 +138,7 @@ paths:
       - comment
   /api/v1/favorite/action:
     post:
-      description: Test API
+      description: like or dislike
       parameters:
       - description: FavoriteParams
         in: body
@@ -140,13 +161,13 @@ paths:
       summary: FavoriteAction
       tags:
       - favorite
-  /api/v1/hots:
+  /api/v1/favorite/list:
     get:
-      description: Test API
+      description: get favorite video list
       parameters:
-      - description: searchValue
+      - description: query user id
         in: query
-        name: searchValue
+        name: userId
         required: true
         type: string
       produces:
@@ -161,14 +182,14 @@ paths:
                 msg:
                   type: string
               type: object
-      summary: GetHots
+      summary: GetFavoriteList
       tags:
-      - video
+      - favorite
   /api/v1/login:
     post:
-      description: Test API
+      description: user login
       parameters:
-      - description: UserParamsUserParams
+      - description: UserParams
         in: body
         name: data
         required: true
@@ -207,9 +228,34 @@ paths:
       summary: Ping
       tags:
       - Ping
-  /api/v1/qiniu/token:
+  /api/v1/qiniu/pfop/callback:
     get:
+      description: Get QiNiu Pfop callback result
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetPfopCallback
+      tags:
+      - QiNiu
+  /api/v1/qiniu/token:
+    post:
       description: Get QiNiu upload token
+      parameters:
+      - description: QiNiuTokenParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.QiNiuTokenParams'
       produces:
       - application/json
       responses:
@@ -227,9 +273,9 @@ paths:
       - QiNiu
   /api/v1/register:
     post:
-      description: Test API
+      description: user register
       parameters:
-      - description: UserParamsUserParams
+      - description: UserParams
         in: body
         name: data
         required: true
@@ -250,9 +296,57 @@ paths:
       summary: UserRegister
       tags:
       - user
-  /api/v1/search:
+  /api/v1/userinfo:
     get:
-      description: Test API
+      description: get userinfo by id
+      parameters:
+      - description: query user id
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UserInfo
+      tags:
+      - user
+  /api/v1/video/hots:
+    get:
+      description: hot list
+      parameters:
+      - description: searchValue
+        in: query
+        name: searchValue
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetHots
+      tags:
+      - video
+  /api/v1/video/search:
+    get:
+      description: search videos by text
       parameters:
       - description: searchValue
         in: query
@@ -274,30 +368,6 @@ paths:
       summary: Search
       tags:
       - video
-  /api/v1/userinfo:
-    get:
-      description: Test API
-      parameters:
-      - description: userId
-        in: query
-        name: userId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Success
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                msg:
-                  type: string
-              type: object
-      summary: UserInfo
-      tags:
-      - user
 securityDefinitions:
   ApiKeyAuth:
     in: header

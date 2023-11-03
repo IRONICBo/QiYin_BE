@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/api/v1/comment/add": {
             "post": {
-                "description": "Test API",
+                "description": "add comment",
                 "produces": [
                     "application/json"
                 ],
@@ -67,7 +67,7 @@ const docTemplate = `{
                 "tags": [
                     "comment"
                 ],
-                "summary": "CommentAction",
+                "summary": "delete comment",
                 "parameters": [
                     {
                         "description": "CommentDelParams",
@@ -103,7 +103,7 @@ const docTemplate = `{
         },
         "/api/v1/comment/list": {
             "get": {
-                "description": "Test API",
+                "description": "get comment list by videoId",
                 "produces": [
                     "application/json"
                 ],
@@ -112,6 +112,13 @@ const docTemplate = `{
                 ],
                 "summary": "CommentList",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "query video id",
+                        "name": "videoId",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "videoId",
@@ -144,7 +151,7 @@ const docTemplate = `{
         },
         "/api/v1/favorite/action": {
             "post": {
-                "description": "Test API",
+                "description": "like or dislike",
                 "produces": [
                     "application/json"
                 ],
@@ -185,21 +192,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/hots": {
+        "/api/v1/favorite/list": {
             "get": {
-                "description": "Test API",
+                "description": "get favorite video list",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "video"
+                    "favorite"
                 ],
-                "summary": "GetHots",
+                "summary": "GetFavoriteList",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "searchValue",
-                        "name": "searchValue",
+                        "description": "query user id",
+                        "name": "userId",
                         "in": "query",
                         "required": true
                     }
@@ -228,7 +235,7 @@ const docTemplate = `{
         },
         "/api/v1/login": {
             "post": {
-                "description": "Test API",
+                "description": "user login",
                 "produces": [
                     "application/json"
                 ],
@@ -238,7 +245,7 @@ const docTemplate = `{
                 "summary": "UserLogin",
                 "parameters": [
                     {
-                        "description": "UserParamsUserParams",
+                        "description": "UserParams",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -301,8 +308,40 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/qiniu/token": {
+        "/api/v1/qiniu/pfop/callback": {
             "get": {
+                "description": "Get QiNiu Pfop callback result",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "QiNiu"
+                ],
+                "summary": "GetPfopCallback",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/qiniu/token": {
+            "post": {
                 "description": "Get QiNiu upload token",
                 "produces": [
                     "application/json"
@@ -311,6 +350,17 @@ const docTemplate = `{
                     "QiNiu"
                 ],
                 "summary": "UserLogin",
+                "parameters": [
+                    {
+                        "description": "QiNiuTokenParams",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestparams.QiNiuTokenParams"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -335,7 +385,7 @@ const docTemplate = `{
         },
         "/api/v1/register": {
             "post": {
-                "description": "Test API",
+                "description": "user register",
                 "produces": [
                     "application/json"
                 ],
@@ -345,7 +395,7 @@ const docTemplate = `{
                 "summary": "UserRegister",
                 "parameters": [
                     {
-                        "description": "UserParamsUserParams",
+                        "description": "UserParams",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -376,9 +426,91 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/search": {
+        "/api/v1/userinfo": {
             "get": {
-                "description": "Test API",
+                "description": "get userinfo by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "UserInfo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "query user id",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/hots": {
+            "get": {
+                "description": "hot list",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "GetHots",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "searchValue",
+                        "name": "searchValue",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/search": {
+            "get": {
+                "description": "search videos by text",
                 "produces": [
                     "application/json"
                 ],
@@ -416,50 +548,22 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/api/v1/userinfo": {
-            "get": {
-                "description": "Test API",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "UserInfo",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "userId",
-                        "name": "userId",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
+        "requestparams.CollectionParams": {
+            "type": "object",
+            "properties": {
+                "actionType": {
+                    "description": "1 点赞，-1 取消",
+                    "type": "integer"
+                },
+                "videoId": {
+                    "description": "UserID     string ` + "`" + `json:userId` + "`" + `",
+                    "type": "integer"
+                }
+            }
+        },
         "requestparams.CommentAddParams": {
             "type": "object",
             "properties": {
@@ -489,6 +593,17 @@ const docTemplate = `{
                 "videoId": {
                     "description": "UserID     string ` + "`" + `json:userId` + "`" + `",
                     "type": "integer"
+                }
+            }
+        },
+        "requestparams.QiNiuTokenParams": {
+            "type": "object",
+            "required": [
+                "ticket"
+            ],
+            "properties": {
+                "ticket": {
+                    "type": "string"
                 }
             }
         },
