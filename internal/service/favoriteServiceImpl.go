@@ -37,7 +37,7 @@ func NewFavoriteService(c *gin.Context) *FavoriteServiceImpl {
 func (favorite *FavoriteServiceImpl) IsFavorite(videoId string, userId string) (bool, error) {
 	key := fmt.Sprintf("%s:%s", utils.Favorite, userId)
 	ctx := context.Background()
-	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 1 {
+	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
 		if err != nil {
 			log.Printf("this user has no favorite：%v", err)
 			return false, err
@@ -52,7 +52,7 @@ func (favorite *FavoriteServiceImpl) IsFavorite(videoId string, userId string) (
 	} else {
 		// 反过来查一下
 		reverseKey := fmt.Sprintf("%s:%s", utils.Favorite, videoId)
-		if n, err := db.GetRedis().Exists(ctx, reverseKey).Result(); n > 1 {
+		if n, err := db.GetRedis().Exists(ctx, reverseKey).Result(); n > 0 {
 			if err != nil {
 				log.Printf("this video has no favorite：%v", err)
 				return false, err
@@ -259,14 +259,14 @@ func (favorite *FavoriteServiceImpl) FavoriteCount(videoId string, isReverse boo
 	ctx := context.Background()
 
 	// step1 如果key:strVideoId存在 则计算集合中userId个数   set中会有默认值  所以必须要大于1
-	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 1 {
+	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
 		// 如果有问题，说明查询redis失败,返回默认false,返回错误信息
 		if err != nil {
 			log.Printf("FavoriteCount query failed：%v", err)
 			return 0, err
 		}
 		// 获取集合中userId个数
-		count, err1 := db.GetRedis().SCard(ctx, videoId).Result()
+		count, err1 := db.GetRedis().SCard(ctx, key).Result()
 		// 如果有问题，说明操作redis失败,返回默认0,返回错误信息
 		if err1 != nil {
 			return 0, err1
@@ -321,7 +321,7 @@ func (favorite *FavoriteServiceImpl) FavoriteList(userId string, curId string) (
 	//将int64 userId转换为 string key
 	key := fmt.Sprintf("%s:%s", utils.Favorite, userId)
 	//step1:查询Redis FavoriteUserId,如果key：strUserId存在,则获取集合中全部videoId
-	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 1 {
+	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
 		//如果有问题，说明查询redis失败,返回默认nil,返回错误信息
 		if err != nil {
 			log.Printf("FavoriteList query failed：%v", err)
@@ -345,8 +345,8 @@ func (favorite *FavoriteServiceImpl) FavoriteList(userId string, curId string) (
 		wg.Add(i)
 		for j := 0; j <= i; j++ {
 			//将string videoId转换为 int64 VideoId
-			videoId, _ := strconv.ParseInt(videoIdList[j], 10, 64)
-			if videoId == utils.DefaultRedisValue {
+			videoId, err := strconv.ParseInt(videoIdList[j], 10, 64)
+			if videoId == utils.DefaultRedisValue || err != nil {
 				continue
 			}
 			go favorite.addFavoriteVideoList(videoId, curId, favoriteVideoList, &wg)

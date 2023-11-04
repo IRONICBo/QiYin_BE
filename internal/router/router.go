@@ -41,7 +41,8 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/login", api.UserLogin)
 		apiv1.POST("/register", api.UserRegister)
 		apiv1.GET("/userinfo", api.UserInfo)
-		apiv1.GET("/check", jwt.Auth(), api.CheckToken)
+		apiv1.GET("/check", jwt.Auth(), api.CheckToken) // 根据token 查看是否登录
+		apiv1.GET("/searchUser", api.SearchUser)
 
 		// 点赞
 		favorite := apiv1.Group("/favorite/")
@@ -50,7 +51,7 @@ func InitRouter() *gin.Engine {
 			favorite.GET("/list", api.GetFavoriteList)
 		}
 
-		// 点赞
+		// 收藏
 		collection := apiv1.Group("/collection/")
 		{
 			collection.POST("/action", jwt.Auth(), api.CollectionAction)

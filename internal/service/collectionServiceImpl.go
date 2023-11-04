@@ -36,7 +36,7 @@ func NewCollectionService(c *gin.Context) *CollectionServiceImpl {
 func (collection *CollectionServiceImpl) IsCollection(videoId string, userId string) (bool, error) {
 	key := fmt.Sprintf("%s:%s", utils.Collection, userId)
 	ctx := context.Background()
-	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 1 {
+	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
 		if err != nil {
 			log.Printf("this user has no collection：%v", err)
 			return false, err
@@ -51,7 +51,7 @@ func (collection *CollectionServiceImpl) IsCollection(videoId string, userId str
 	} else {
 		//反过来查一下
 		reverseKey := fmt.Sprintf("%s:%s", utils.Collection, videoId)
-		if n, err := db.GetRedis().Exists(ctx, reverseKey).Result(); n > 1 {
+		if n, err := db.GetRedis().Exists(ctx, reverseKey).Result(); n > 0 {
 			if err != nil {
 				log.Printf("this video has no collection：%v", err)
 				return false, err
@@ -260,14 +260,14 @@ func (collection *CollectionServiceImpl) CollectionCount(videoId string, isRever
 	ctx := context.Background()
 
 	//step1 如果key:strVideoId存在 则计算集合中userId个数   set中会有默认值  所以必须要大于1
-	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 1 {
+	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
 		//如果有问题，说明查询redis失败,返回默认false,返回错误信息
 		if err != nil {
 			log.Printf("CollectionCount query failed：%v", err)
 			return 0, err
 		}
 		//获取集合中userId个数
-		count, err1 := db.GetRedis().SCard(ctx, videoId).Result()
+		count, err1 := db.GetRedis().SCard(ctx, key).Result()
 		//如果有问题，说明操作redis失败,返回默认0,返回错误信息
 		if err1 != nil {
 			return 0, err1
@@ -322,7 +322,7 @@ func (collection *CollectionServiceImpl) CollectionList(userId string, curId str
 	//将int64 userId转换为 string key
 	key := fmt.Sprintf("%s:%s", utils.Collection, userId)
 	//step1:查询Redis CollectionUserId,如果key：strUserId存在,则获取集合中全部videoId
-	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 1 {
+	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
 		//如果有问题，说明查询redis失败,返回默认nil,返回错误信息
 		if err != nil {
 			log.Printf("CollectionList query failed：%v", err)
@@ -346,8 +346,8 @@ func (collection *CollectionServiceImpl) CollectionList(userId string, curId str
 		wg.Add(i)
 		for j := 0; j <= i; j++ {
 			//将string videoId转换为 int64 VideoId
-			videoId, _ := strconv.ParseInt(videoIdList[j], 10, 64)
-			if videoId == utils.DefaultRedisValue {
+			videoId, err := strconv.ParseInt(videoIdList[j], 10, 64)
+			if videoId == utils.DefaultRedisValue || err != nil {
 				continue
 			}
 			go collection.addCollectionVideoList(videoId, curId, collectionVideoList, &wg)

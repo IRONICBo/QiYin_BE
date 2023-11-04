@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"log"
+	"sync"
 
 	"github.com/IRONICBo/QiYin_BE/internal/dal/dao"
 	requestparams "github.com/IRONICBo/QiYin_BE/internal/params/request"
@@ -155,17 +156,93 @@ func (usi *UserServiceImpl) GetUserById(id string) (dao.ResUser, error) {
 	}
 	log.Println("Query User Success")
 
-	u := GetFavoriteService() //解决循环依赖
-	// 获取点赞以及被点赞的数量
-	totalFavorited, _ := u.TotalFavorite(id)
-	favoritedCount, _ := u.FavoriteVideoCount(id)
-	c := GetCollectionService()
-	totalCollection, _ := c.TotalCollection(id)
-	collectionCount, _ := c.CollectionVideoCount(id)
-	user.TotalFavorited = totalFavorited
-	user.FavoriteCount = favoritedCount
-	user.TotalCollected = totalCollection
-	user.CollectionCount = collectionCount
+	usi.creatUser(&user, id, true)
+	//u := GetFavoriteService() //解决循环依赖
+	//// 获取点赞以及被点赞的数量
+	//totalFavorited, _ := u.TotalFavorite(id)
+	//favoritedCount, _ := u.FavoriteVideoCount(id)
+	//c := GetCollectionService()
+	//totalCollection, _ := c.TotalCollection(id)
+	//collectionCount, _ := c.CollectionVideoCount(id)
+	//user.TotalFavorited = totalFavorited
+	//user.FavoriteCount = favoritedCount
+	//user.TotalCollected = totalCollection
+	//user.CollectionCount = collectionCount
 
 	return user, nil
+}
+
+func (usi *UserServiceImpl) Search(searchValue string) ([]dao.ResUser, error) {
+	// userList 查询到的相关用户
+	userList, err := dao.GetUserIdByName(searchValue)
+	if err != nil {
+		log.Printf("Search user failed：%v", err)
+		return userList, err
+	}
+	//	获取到用户的点赞数和收藏数
+	// 得到点赞数和收藏数
+	var resUsers []dao.ResUser
+	for _, user := range userList {
+		res, err := usi.creatUser(&user, user.Id, false)
+		if err != nil {
+			resUsers = append(resUsers, user)
+		}
+		resUsers = append(resUsers, *res)
+	}
+	return resUsers, nil
+}
+
+// 将点赞数和收藏数 放到user上
+func (usi *UserServiceImpl) creatUser(user *dao.ResUser, id string, isExpend bool) (*dao.ResUser, error) {
+	//建立协程组，当这一组的携程全部完成后，才会结束本方法
+	var wg sync.WaitGroup
+	numOfWait := 2
+	if isExpend {
+		numOfWait = 4
+	}
+	wg.Add(numOfWait)
+	var err error
+
+	u := GetFavoriteService()
+	c := GetCollectionService()
+	//插入被点赞数量
+	go func() {
+		user.TotalFavorited, err = u.TotalFavorite(id)
+		if err != nil {
+			log.Printf("get total favorite failed：%v", err)
+		}
+		wg.Done()
+	}()
+
+	//获取被收藏数量
+	go func() {
+		user.TotalCollected, err = c.TotalCollection(id)
+		if err != nil {
+			log.Printf("get total collected failed：%v", err)
+		}
+		wg.Done()
+	}()
+
+	if isExpend {
+		//插入用户点赞数量
+		go func() {
+			user.FavoriteCount, err = u.FavoriteVideoCount(id)
+			if err != nil {
+				log.Printf("get favorite count failed：%v", err)
+			}
+			wg.Done()
+		}()
+
+		//获取当前用户收藏过的数量
+		go func() {
+			user.CollectionCount, err = c.CollectionVideoCount(id)
+			if err != nil {
+				log.Printf("get collection count failed：%v", err)
+			}
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+	return user, err
 }

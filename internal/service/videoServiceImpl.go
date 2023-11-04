@@ -67,12 +67,16 @@ func (videoService *VideoServiceImpl) Search(searchValue string, userId string) 
 		fmt.Println("Error:", err)
 	}
 
+	var resVideos []dao.ResVideo
 	// 得到点赞数和收藏数
 	for _, video := range videoList {
-		videoService.creatVideo(&video, userId)
+		res, err := videoService.creatVideo(&video, userId)
+		if err != nil {
+			resVideos = append(resVideos, video)
+		}
+		resVideos = append(resVideos, *res)
 	}
-
-	return videoList, nil
+	return resVideos, nil
 }
 
 // GetHots 得到热榜.
@@ -100,7 +104,7 @@ func (videoService *VideoServiceImpl) GetVideo(videoId int64, curUserId string) 
 }
 
 // 将video进行组装，添加想要的信息,插入从数据库中查到的数据
-func (videoService *VideoServiceImpl) creatVideo(video *dao.ResVideo, userId string) {
+func (videoService *VideoServiceImpl) creatVideo(video *dao.ResVideo, userId string) (*dao.ResVideo, error) {
 	//防止输出密码
 	video.Author.Password = ""
 	//建立协程组，当这一组的携程全部完成后，才会结束本方法
@@ -155,6 +159,7 @@ func (videoService *VideoServiceImpl) creatVideo(video *dao.ResVideo, userId str
 	}()
 
 	wg.Wait()
+	return video, err
 }
 
 // GetVideoService 拼装videoService

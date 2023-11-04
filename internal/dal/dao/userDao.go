@@ -7,10 +7,11 @@ import (
 )
 
 type ResUser struct {
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	Avatar          string `json:"avatar"`
-	BackgroundImage string `json:"background_image"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	//BackgroundImage string `json:"background_image"`
+	Style           string `json:"style"`
 	Signature       string `json:"signature"`
 	TotalFavorited  int64  `json:"total_favorited"`
 	FavoriteCount   int64  `json:"favorite_count"`
@@ -19,13 +20,13 @@ type ResUser struct {
 }
 
 type User struct {
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	Avatar          string `json:"avatar"`
-	BackgroundImage string `json:"background_image,omitempty"`
-	Signature       string `json:"signature,omitempty"`
-	Password        string `json:"password,omitempty"`
-	//	todo 加风格标签  性别等
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	//BackgroundImage string `json:"background_image,omitempty"`
+	Signature string `json:"signature,omitempty"`
+	Password  string `json:"password,omitempty"`
+	Style     string `json:"style"`
 }
 
 // TableName 修改表名映射.
@@ -79,4 +80,16 @@ func InsertTableUser(user *User) bool {
 		return false
 	}
 	return true
+}
+
+// GetUserIdByName
+// 通过关键字搜索用户  name.
+func GetUserIdByName(value string) ([]ResUser, error) {
+	var userList []ResUser
+	result := db.GetMysqlDB().Table("users").Where("name LIKE ?", "%"+value+"%").Find(&userList)
+	// 如果出现问题，返回对应到空，并且返回error
+	if result.Error != nil {
+		return []ResUser{}, result.Error
+	}
+	return userList, nil
 }

@@ -106,3 +106,23 @@ func CheckToken(c *gin.Context) {
 	}
 	response.SuccessWithData(user, c)
 }
+
+// SearchUser
+// @Tags user
+// @Summary SearchUser
+// @Description search user by name
+// @Produce application/json
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/searchUser [get].
+func SearchUser(c *gin.Context) {
+	searchValue := c.Query("searchValue")
+
+	svc := service.NewUserService(c)
+	u, err := svc.Search(searchValue)
+	if err != nil {
+		log.Debug("user doesn't exit", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+	response.SuccessWithData(u, c)
+}
