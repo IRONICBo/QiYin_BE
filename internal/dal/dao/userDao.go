@@ -93,3 +93,12 @@ func GetUserIdByName(value string) ([]ResUser, error) {
 	}
 	return userList, nil
 }
+
+func SetStyle(userId string, style string) error {
+	result := db.GetMysqlDB().Table("users").Where("id = ?", userId).Update("style", style)
+	// 如果出现问题，返回对应到空，并且返回error
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

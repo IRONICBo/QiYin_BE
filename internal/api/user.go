@@ -126,3 +126,35 @@ func SearchUser(c *gin.Context) {
 	}
 	response.SuccessWithData(u, c)
 }
+
+// SetStyle
+// @Tags user
+// @Summary SetStyle
+// @Description set user style
+// @Produce application/json
+// @Param data body requestparams.StyleParams true "StyleParams"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/setStyle [post].
+func SetStyle(c *gin.Context) {
+	var params requestparams.StyleParams
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		response.FailWithCode(common.INVALID_PARAMS, c)
+		return
+	}
+
+	// 只有登录的用户才可以选择风格
+	userId := c.GetString("userId")
+	if len(userId) == 0 {
+		response.FailWithData(false, c)
+		return
+	}
+
+	err = dao.SetStyle(userId, params.Style)
+	if err != nil {
+		log.Debug("user doesn't exit", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+	response.Success(c)
+}

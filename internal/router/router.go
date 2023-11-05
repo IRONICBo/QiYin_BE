@@ -43,6 +43,7 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/userinfo", api.UserInfo)
 		apiv1.GET("/check", jwt.Auth(), api.CheckToken) // 根据token 查看是否登录
 		apiv1.GET("/searchUser", api.SearchUser)
+		apiv1.POST("/setStyle", jwt.Auth(), api.SetStyle)
 
 		// 点赞
 		favorite := apiv1.Group("/favorite/")
