@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	requestparams "github.com/IRONICBo/QiYin_BE/internal/params/request"
 	"log"
 	"strconv"
 	"sync"
@@ -79,6 +80,42 @@ func (videoService *VideoServiceImpl) Search(searchValue string, userId string) 
 	return resVideos, nil
 }
 
+func (videoService *VideoServiceImpl) GetVideoByUserId(userId string, curUsrId string) ([]dao.ResVideo, error) {
+	// 查询到相关的videolist + 相关的用户信息
+	videoList, err := dao.GetVideoBuUserId(userId)
+	// 查询失败直接返回
+	if err != nil {
+		log.Printf("query failed：%v", err)
+		return videoList, err
+	}
+
+	var resVideos []dao.ResVideo
+	// 得到点赞数和收藏数
+	for _, video := range videoList {
+		res, err := videoService.creatVideo(&video, curUsrId)
+		if err != nil {
+			resVideos = append(resVideos, video)
+		}
+		resVideos = append(resVideos, *res)
+	}
+	return resVideos, nil
+}
+
+func (videoService *VideoServiceImpl)UploadVideo(userId string,param *requestparams.VideoUpdateParams) error  {
+
+	newVideo := dao.Video{
+		UserId:userId,
+		PlayUrl:param.PlayUrl,
+		CoverUrl:param.CoverUrl,
+		PublishTime:time.Now(),
+		Title:param.Title,
+		Desc:param.Desc,
+		Category:param.Category,
+		Tags:param.Tags,
+	}
+	return dao.InsertVideo(&newVideo)
+}
+
 // GetHots 得到热榜.
 func (videoService *VideoServiceImpl) GetHots() ([]string, error) {
 	ctx := context.Background()
@@ -109,7 +146,13 @@ func (videoService *VideoServiceImpl) creatVideo(video *dao.ResVideo, userId str
 	video.Author.Password = ""
 	//建立协程组，当这一组的携程全部完成后，才会结束本方法
 	var wg sync.WaitGroup
-	wg.Add(5)
+
+	numOfWait := 3
+	if userId != "" {
+		numOfWait = 5
+	}
+	wg.Add(numOfWait)
+
 	var err error
 
 	u := GetVideoService()
@@ -140,24 +183,25 @@ func (videoService *VideoServiceImpl) creatVideo(video *dao.ResVideo, userId str
 		wg.Done()
 	}()
 
-	//获取当前用户是否点赞了该视频
-	go func() {
-		video.IsFavorite, err = u.IsFavorite(strconv.FormatInt(video.Id, 10), userId)
-		if err != nil {
-			log.Printf("get IsFavorite failed：%v", err)
-		}
-		wg.Done()
-	}()
+	if userId != "" {
+		//获取当前用户是否点赞了该视频
+		go func() {
+			video.IsFavorite, err = u.IsFavorite(strconv.FormatInt(video.Id, 10), userId)
+			if err != nil {
+				log.Printf("get IsFavorite failed：%v", err)
+			}
+			wg.Done()
+		}()
 
-	//获取当前用户是否点赞了该视频
-	go func() {
-		video.IsCollection, err = u.IsCollection(strconv.FormatInt(video.Id, 10), userId)
-		if err != nil {
-			log.Printf("get IsCollection failed：%v", err)
-		}
-		wg.Done()
-	}()
-
+		//获取当前用户是否点赞了该视频
+		go func() {
+			video.IsCollection, err = u.IsCollection(strconv.FormatInt(video.Id, 10), userId)
+			if err != nil {
+				log.Printf("get IsCollection failed：%v", err)
+			}
+			wg.Done()
+		}()
+	}
 	wg.Wait()
 	return video, err
 }

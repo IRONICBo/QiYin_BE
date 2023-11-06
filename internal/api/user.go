@@ -158,3 +158,36 @@ func SetStyle(c *gin.Context) {
 	}
 	response.Success(c)
 }
+
+// SetUser
+// @Tags user
+// @Summary SetUser
+// @Description update user info
+// @Produce application/json
+// @Param data body requestparams.UserInfoParams true "UserInfoParams"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/setUser [post].
+func SetUser(c *gin.Context) {
+	var params requestparams.UserInfoParams
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		response.FailWithCode(common.INVALID_PARAMS, c)
+		return
+	}
+
+	// 只有登录的用户才可以修改自身用户信息
+	userId := c.GetString("userId")
+	if len(userId) == 0 {
+		response.FailWithData(false, c)
+		return
+	}
+
+	svc := service.NewUserService(c)
+	err = svc.UpdateUser(userId, &params)
+	if err != nil {
+		log.Debug("user update failed", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+	response.Success(c)
+}

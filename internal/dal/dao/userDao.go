@@ -102,3 +102,13 @@ func SetStyle(userId string, style string) error {
 	}
 	return nil
 }
+
+func UpdateUser(userId string, userInfo User) error {
+	// 使用 struct 更新多个属性，只会更新其中有变化且为非零值的字段
+	result := db.GetMysqlDB().Table("users").Where("id = ?", userId).Updates(userInfo)
+	// 如果出现问题，返回对应到空，并且返回error
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

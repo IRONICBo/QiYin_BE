@@ -4,6 +4,7 @@ import (
 	"github.com/IRONICBo/QiYin_BE/internal/common"
 	"github.com/IRONICBo/QiYin_BE/internal/common/response"
 	"github.com/IRONICBo/QiYin_BE/internal/middleware/jwt"
+	requestparams "github.com/IRONICBo/QiYin_BE/internal/params/request"
 	"github.com/IRONICBo/QiYin_BE/internal/service"
 	"github.com/IRONICBo/QiYin_BE/pkg/log"
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,30 @@ func Search(c *gin.Context) {
 	response.SuccessWithData(u, c)
 }
 
+// GetVideos
+// @Tags video
+// @Summary GetVideos
+// @Description get videos by userId
+// @Produce application/json
+// @Param searchValue query string true "searchValue"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/video/list [get].
+func GetVideos(c *gin.Context) {
+	userId := c.Query("userId")
+	//是否登录
+	curId := jwt.GetUserId(c)
+
+	svc := service.NewVideoService(c)
+	u, err := svc.GetVideoByUserId(userId, curId)
+
+	if err != nil {
+		log.Debug("video doesn't exit", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+	response.SuccessWithData(u, c)
+}
+
 // GetHots
 // @Tags video
 // @Summary GetHots
@@ -49,4 +74,37 @@ func GetHots(c *gin.Context) {
 		return
 	}
 	response.SuccessWithData(u, c)
+}
+
+// UploadVideo
+// @Tags video
+// @Summary UploadVideo
+// @Description hot list
+// @Produce application/json
+// @Param data body requestparams.VideoUpdateParams true "VideoUpdateParams"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/video/upload [post].
+func UploadVideo(c *gin.Context) {
+	var params requestparams.VideoUpdateParams
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		response.FailWithCode(common.INVALID_PARAMS, c)
+		return
+	}
+
+	userId := c.GetString("userId")
+	if len(userId) == 0 {
+		response.FailWithCode(common.INVALID_PARAMS, c)
+		return
+	}
+	svc := service.NewVideoService(c)
+	err = svc.UploadVideo(userId, &params)
+
+	if err != nil {
+		log.Debug("upload operation error", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+
+	response.Success(c)
 }

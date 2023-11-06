@@ -44,6 +44,7 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/check", jwt.Auth(), api.CheckToken) // 根据token 查看是否登录
 		apiv1.GET("/searchUser", api.SearchUser)
 		apiv1.POST("/setStyle", jwt.Auth(), api.SetStyle)
+		apiv1.POST("/setUser", jwt.Auth(), api.SetUser)
 
 		// 点赞
 		favorite := apiv1.Group("/favorite/")
@@ -72,6 +73,8 @@ func InitRouter() *gin.Engine {
 		{
 			video.GET("/search", api.Search)
 			video.GET("/hots", api.GetHots)
+			video.GET("/list", api.GetVideos)
+			video.POST("/upload", jwt.Auth(), api.UploadVideo)
 		}
 
 		// QiNiu

@@ -157,17 +157,6 @@ func (usi *UserServiceImpl) GetUserById(id string) (dao.ResUser, error) {
 	log.Println("Query User Success")
 
 	usi.creatUser(&user, id, true)
-	//u := GetFavoriteService() //解决循环依赖
-	//// 获取点赞以及被点赞的数量
-	//totalFavorited, _ := u.TotalFavorite(id)
-	//favoritedCount, _ := u.FavoriteVideoCount(id)
-	//c := GetCollectionService()
-	//totalCollection, _ := c.TotalCollection(id)
-	//collectionCount, _ := c.CollectionVideoCount(id)
-	//user.TotalFavorited = totalFavorited
-	//user.FavoriteCount = favoritedCount
-	//user.TotalCollected = totalCollection
-	//user.CollectionCount = collectionCount
 
 	return user, nil
 }
@@ -245,4 +234,17 @@ func (usi *UserServiceImpl) creatUser(user *dao.ResUser, id string, isExpend boo
 
 	wg.Wait()
 	return user, err
+}
+
+// update user.
+func (usi *UserServiceImpl) UpdateUser(userId string, param *requestparams.UserInfoParams) error {
+
+	newUser := dao.User{
+		Name:      param.Name,
+		Avatar:    param.Avatar,
+		Style:     param.Style,
+		Signature: param.Signature,
+	}
+	err := dao.UpdateUser(userId, newUser)
+	return err
 }

@@ -13,6 +13,9 @@ type Video struct {
 	CoverUrl    string    `json:"cover_url"`
 	PublishTime time.Time `json:"publish_time"`
 	Title       string    `json:"title"` // 视频名
+	Desc        string    `json:"desc"`
+	Category    int64     `json:"category"`
+	Tags        string    `json:"tags"`
 }
 
 type ResVideo struct {
@@ -50,6 +53,17 @@ func GetVideoByTitle(value string) ([]ResVideo, error) {
 	return videoList, nil
 }
 
+// GetVideoBuUserId
+func GetVideoBuUserId(value string) ([]ResVideo, error) {
+	var videoList []ResVideo
+	result := db.GetMysqlDB().Table("videos").Where("user_id = ?", value).Preload("Author").Find(&videoList)
+	// 如果出现问题，返回对应到空，并且返回error
+	if result.Error != nil {
+		return []ResVideo{}, result.Error
+	}
+	return videoList, nil
+}
+
 // GetVideoById
 // 通过userId 搜索视频.
 func GetVideoById(videoId int64) (ResVideo, error) {
@@ -60,4 +74,10 @@ func GetVideoById(videoId int64) (ResVideo, error) {
 		return ResVideo{}, result.Error
 	}
 	return videoList, nil
+}
+
+
+func InsertVideo(video *Video) error {
+	err := db.GetMysqlDB().Create(&video).Error
+	return err
 }
