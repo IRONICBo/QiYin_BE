@@ -36,6 +36,11 @@ definitions:
     required:
     - ticket
     type: object
+  requestparams.StyleParams:
+    properties:
+      style:
+        type: string
+    type: object
   requestparams.UserParams:
     properties:
       name:
@@ -57,6 +62,24 @@ info:
   title: QiYin Backend
   version: v0.0.0
 paths:
+  /api/v1/check:
+    get:
+      description: Check whether the token is valid
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: CheckToken
+      tags:
+      - user
   /api/v1/comment/add:
     post:
       description: add comment
@@ -246,6 +269,30 @@ paths:
       summary: GetPfopCallback
       tags:
       - QiNiu
+  /api/v1/qiniu/proxy:
+    get:
+      description: Get QiNiu image by proxy
+      parameters:
+      - description: url
+        in: query
+        name: url
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetImageByProxy
+      tags:
+      - QiNiu
   /api/v1/qiniu/token:
     post:
       description: Get QiNiu upload token
@@ -294,6 +341,49 @@ paths:
                   type: string
               type: object
       summary: UserRegister
+      tags:
+      - user
+  /api/v1/searchUser:
+    get:
+      description: search user by name
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: SearchUser
+      tags:
+      - user
+  /api/v1/setStyle:
+    post:
+      description: set user style
+      parameters:
+      - description: StyleParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.StyleParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: SetStyle
       tags:
       - user
   /api/v1/userinfo:
