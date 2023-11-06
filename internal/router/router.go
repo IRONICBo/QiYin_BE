@@ -82,6 +82,7 @@ func InitRouter() *gin.Engine {
 		{
 			qiniu.POST("/token", api.GetUploadToken)
 			qiniu.POST("/pfop/callback", api.GetPfopCallback)
+			qiniu.GET("/proxy", api.GetImageByProxy)
 		}
 	}
 
