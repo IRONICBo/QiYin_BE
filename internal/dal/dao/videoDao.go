@@ -76,13 +76,24 @@ func GetVideoByCate(value string) ([]ResVideo, error) {
 
 // GetVideoBuUserId
 func GetVideoBuUserId(value string) ([]ResVideo, error) {
-	var videoList []ResVideo
-	result := db.GetMysqlDB().Table("videos").Where("user_id = ?", value).Preload("Author").Order("publish_time desc").Find(&videoList)
+	var video []ResVideo
+	result := db.GetMysqlDB().Table("videos").Where("user_id = ?", value).Preload("Author").Order("publish_time desc").Find(&video)
 	// 如果出现问题，返回对应到空，并且返回error
 	if result.Error != nil {
 		return []ResVideo{}, result.Error
 	}
-	return videoList, nil
+	return video, nil
+}
+
+// GetVideo
+func GetVideo(value string) (ResVideo, error) {
+	var video ResVideo
+	result := db.GetMysqlDB().Table("videos").Where("id = ?", value).Preload("Author").Order("publish_time desc").First(&video)
+	// 如果出现问题，返回对应到空，并且返回error
+	if result.Error != nil {
+		return ResVideo{}, result.Error
+	}
+	return video, nil
 }
 
 // GetVideos
@@ -100,7 +111,7 @@ func GetVideos() ([]ResVideo, error) {
 // 通过userId 搜索视频.
 func GetVideoById(videoId int64) (ResVideo, error) {
 	var videoList ResVideo
-	err := db.GetMysqlDB().Table("videos").Where("id", videoId).Preload("Author").Order("publish_time desc").First(&videoList).Error
+	err := db.GetMysqlDB().Table("videos").Where("id", videoId).Preload("Author").First(&videoList).Error
 	if err != nil {
 		// 查询数据为0，返回空collectionVideoIdList切片，以及返回无错误
 		if "record not found" == err.Error() {

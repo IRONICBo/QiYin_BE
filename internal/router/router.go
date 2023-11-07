@@ -79,6 +79,7 @@ func InitRouter() *gin.Engine {
 			video.POST("/upload", jwt.Auth(), api.UploadVideo)
 			video.POST("/save", api.SaveVideoHis)
 			video.GET("/getHistory", jwt.Auth(), api.GetHistory)
+			video.GET("/getVideo", api.GetVideo)
 		}
 
 		// QiNiu

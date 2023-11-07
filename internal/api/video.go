@@ -80,6 +80,30 @@ func GetVideos(c *gin.Context) {
 	response.SuccessWithData(u, c)
 }
 
+// GetVideo
+// @Tags video
+// @Summary GetVideo
+// @Description get video by videoId
+// @Produce application/json
+// @Param searchValue query string true "searchValue"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/video/getVideo [get].
+func GetVideo(c *gin.Context) {
+	videoId := c.Query("videoId")
+	//是否登录
+	curId := jwt.GetUserId(c)
+
+	svc := service.NewVideoService(c)
+	u, err := svc.GetVideoById(videoId, curId)
+
+	if err != nil {
+		log.Debug("video doesn't exit", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+	response.SuccessWithData(u, c)
+}
+
 // GetVideosList
 // @Tags video
 // @Summary GetVideosList

@@ -266,6 +266,21 @@ func (videoService *VideoServiceImpl) GetVideoByUserId(userId string, curUsrId s
 	return resVideos, nil
 }
 
+func (videoService *VideoServiceImpl) GetVideoById(videoId string, curUsrId string) (dao.ResVideo, error) {
+	// 查询到相关的videolist + 相关的用户信息
+	video, err := dao.GetVideo(videoId)
+	// 查询失败直接返回
+	if err != nil {
+		log.Printf("query failed：%v", err)
+		return video, err
+	}
+
+	// 得到点赞数和收藏数
+	res, err := videoService.creatVideo(&video, curUsrId)
+
+	return *res, nil
+}
+
 func (videoService *VideoServiceImpl) GetVideos(curUsrId string) ([]dao.ResVideo, error) {
 	// 查询到相关的videolist + 相关的用户信息
 	videoList, err := dao.GetVideos()
@@ -275,16 +290,16 @@ func (videoService *VideoServiceImpl) GetVideos(curUsrId string) ([]dao.ResVideo
 		return videoList, err
 	}
 
-	var resVideos []dao.ResVideo
-	// 得到点赞数和收藏数
-	for _, video := range videoList {
-		res, err := videoService.creatVideo(&video, curUsrId)
-		if err != nil {
-			resVideos = append(resVideos, video)
-		}
-		resVideos = append(resVideos, *res)
-	}
-	return resVideos, nil
+	//var resVideos []dao.ResVideo
+	//// 得到点赞数和收藏数
+	//for _, video := range videoList {
+	//	res, err := videoService.creatVideo(&video, curUsrId)
+	//	if err != nil {
+	//		resVideos = append(resVideos, video)
+	//	}
+	//	resVideos = append(resVideos, *res)
+	//}
+	return videoList, nil
 }
 
 func (videoService *VideoServiceImpl) UploadVideo(userId string, param *requestparams.VideoUpdateParams) error {
