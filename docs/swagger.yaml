@@ -50,7 +50,7 @@ definitions:
       signature:
         type: string
       style:
-        type: string
+        type: integer
     type: object
   requestparams.UserParams:
     properties:
@@ -58,6 +58,17 @@ definitions:
         type: string
       password:
         type: string
+      signature:
+        type: string
+    type: object
+  requestparams.VideoHisParams:
+    properties:
+      user_id:
+        type: string
+      video_id:
+        type: integer
+      watch_ratio:
+        type: number
     type: object
   requestparams.VideoUpdateParams:
     properties:
@@ -462,6 +473,31 @@ paths:
       summary: UserInfo
       tags:
       - user
+  /api/v1/video/getHistory:
+    get:
+      description: get history list
+      parameters:
+      - description: VideoUpdateParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.VideoUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetHistory
+      tags:
+      - video
   /api/v1/video/hots:
     get:
       description: hot list
@@ -508,6 +544,31 @@ paths:
                   type: string
               type: object
       summary: GetVideos
+      tags:
+      - video
+  /api/v1/video/save:
+    post:
+      description: video history
+      parameters:
+      - description: VideoHisParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.VideoHisParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: SaveVideoHis
       tags:
       - video
   /api/v1/video/search:

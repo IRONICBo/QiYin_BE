@@ -658,6 +658,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/video/getHistory": {
+            "get": {
+                "description": "get history list",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "GetHistory",
+                "parameters": [
+                    {
+                        "description": "VideoUpdateParams",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestparams.VideoUpdateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/video/hots": {
             "get": {
                 "description": "hot list",
@@ -716,6 +759,49 @@ const docTemplate = `{
                         "name": "searchValue",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/save": {
+            "post": {
+                "description": "video history",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "SaveVideoHis",
+                "parameters": [
+                    {
+                        "description": "VideoHisParams",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestparams.VideoHisParams"
+                        }
                     }
                 ],
                 "responses": {
@@ -903,7 +989,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "style": {
-                    "type": "string"
+                    "type": "integer"
                 }
             }
         },
@@ -915,6 +1001,23 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                }
+            }
+        },
+        "requestparams.VideoHisParams": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "string"
+                },
+                "video_id": {
+                    "type": "integer"
+                },
+                "watch_ratio": {
+                    "type": "number"
                 }
             }
         },
