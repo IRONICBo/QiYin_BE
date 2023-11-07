@@ -751,7 +751,7 @@ const docTemplate = `{
                 "tags": [
                     "video"
                 ],
-                "summary": "GetVideos",
+                "summary": "GetVideosList",
                 "parameters": [
                     {
                         "type": "string",
@@ -836,6 +836,47 @@ const docTemplate = `{
                     "video"
                 ],
                 "summary": "Search",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "searchValue",
+                        "name": "searchValue",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/searchTag": {
+            "get": {
+                "description": "search videos by tag",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "SearchTag",
                 "parameters": [
                     {
                         "type": "string",

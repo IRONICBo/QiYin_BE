@@ -543,7 +543,7 @@ paths:
                 msg:
                   type: string
               type: object
-      summary: GetVideos
+      summary: GetVideosList
       tags:
       - video
   /api/v1/video/save:
@@ -593,6 +593,30 @@ paths:
                   type: string
               type: object
       summary: Search
+      tags:
+      - video
+  /api/v1/video/searchTag:
+    get:
+      description: search videos by tag
+      parameters:
+      - description: searchValue
+        in: query
+        name: searchValue
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: SearchTag
       tags:
       - video
   /api/v1/video/upload:
