@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"errors"
+	"log"
 	"time"
 
 	"github.com/IRONICBo/QiYin_BE/internal/conn/db"
@@ -26,6 +28,15 @@ type ResVideo struct {
 	IsFavorite      bool  `json:"is_favorite"`
 	CollectionCount int64 `json:"collection_count"`
 	IsCollection    bool  `json:"is_collection"`
+}
+
+// 浏览记录
+type UserWatchAction struct {
+	Id         int64     `json:"id"`
+	UserId     string    `json:"user_id"`
+	VideoId    int64     `json:"video_id"`    // 视频ID
+	WatchRatio float64   `json:"watch_ratio"` // 观看完成比例
+	FinishTime time.Time `json:"finish_time"` // 用户Action时间戳
 }
 
 // GetVideoIdsByAuthorId
@@ -68,16 +79,63 @@ func GetVideoBuUserId(value string) ([]ResVideo, error) {
 // 通过userId 搜索视频.
 func GetVideoById(videoId int64) (ResVideo, error) {
 	var videoList ResVideo
-	result := db.GetMysqlDB().Table("videos").Where("id", videoId).Preload("Author").First(&videoList)
-	// 如果出现问题，返回对应到空，并且返回error
-	if result.Error != nil {
-		return ResVideo{}, result.Error
+	err := db.GetMysqlDB().Table("videos").Where("id", videoId).Preload("Author").Order("publish_time desc").First(&videoList).Error
+	if err != nil {
+		// 查询数据为0，返回空collectionVideoIdList切片，以及返回无错误
+		if "record not found" == err.Error() {
+			return videoList, nil
+		} else {
+			// 如果查询数据库失败，返回获取collectionVideoIdList失败
+			log.Println(err.Error())
+		}
 	}
 	return videoList, nil
 }
 
-
 func InsertVideo(video *Video) error {
 	err := db.GetMysqlDB().Create(&video).Error
 	return err
+}
+
+func GetVideoHis(userId string, videoId int64) (UserWatchAction, error) {
+	var videoList UserWatchAction
+	res := db.GetMysqlDB().Model(UserWatchAction{}).Where("user_id = ? and video_id = ?", userId, videoId).First(&videoList)
+	if res.Error != nil {
+		return UserWatchAction{}, res.Error
+	}
+	return videoList, nil
+}
+
+func InsertVideoHis(video *UserWatchAction) error {
+	err := db.GetMysqlDB().Model(UserWatchAction{}).Create(&video).Error
+	return err
+}
+
+func UpdateVideoHis(video *UserWatchAction) error {
+	err := db.GetMysqlDB().Model(UserWatchAction{}).Where(map[string]interface{}{"user_id": video.UserId, "video_id": video.VideoId}).
+		Updates(video).Error
+	// 如果出现错误，返回更新数据库失败
+	if err != nil {
+		log.Println(err.Error())
+		return errors.New("update data fail")
+	}
+	return nil
+}
+
+func GeVideoHisList(userId string) ([]string, error) {
+	var IdList []string
+	err := db.GetMysqlDB().Model(UserWatchAction{}).Where("user_id = ?", userId).Pluck("video_id", &IdList).Error
+	// 如果出现错误，返回更新数据库失败
+	if err != nil {
+		// 查询数据为0，返回空collectionVideoIdList切片，以及返回无错误
+		if "record not found" == err.Error() {
+			log.Println("there are no id")
+			return IdList, nil
+		} else {
+			// 如果查询数据库失败，返回获取collectionVideoIdList失败
+			log.Println(err.Error())
+		}
+	}
+	return IdList, nil
+
 }

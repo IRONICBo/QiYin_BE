@@ -108,3 +108,65 @@ func UploadVideo(c *gin.Context) {
 
 	response.Success(c)
 }
+
+// GetHistory
+// @Tags video
+// @Summary GetHistory
+// @Description get history list
+// @Produce application/json
+// @Param data body requestparams.VideoUpdateParams true "VideoUpdateParams"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/video/getHistory [get].
+func GetHistory(c *gin.Context) {
+	userId := c.GetString("userId")
+	if len(userId) == 0 {
+		response.FailWithCode(common.INVALID_PARAMS, c)
+		return
+	}
+
+	svc := service.NewVideoService(c)
+	videos, err := svc.GetHisVideos(userId)
+
+	if err != nil {
+		log.Debug("upload operation error", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+
+	response.SuccessWithData(videos, c)
+}
+
+// SaveVideoHis
+// @Tags video
+// @Summary SaveVideoHis
+// @Description video history
+// @Produce application/json
+// @Param data body requestparams.VideoHisParams true "VideoHisParams"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/video/save [post].
+func SaveVideoHis(c *gin.Context) {
+	//是否登录
+	curId := jwt.GetUserId(c)
+	if curId == "" {
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+
+	var params requestparams.VideoHisParams
+	err := c.ShouldBindJSON(&params)
+	if err != nil {
+		response.FailWithCode(common.INVALID_PARAMS, c)
+		return
+	}
+
+	svc := service.NewVideoService(c)
+	err = svc.SaveVideoHis(curId, &params)
+
+	if err != nil {
+		log.Debug("save operation error", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+
+	response.Success(c)
+}

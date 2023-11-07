@@ -54,14 +54,14 @@ func UserRegister(c *gin.Context) {
 	}
 
 	svc := service.NewUserService(c)
-	u, err := svc.Register(&params)
+	err = svc.Register(&params)
 	if err != nil {
 		log.Debug("register error", err)
 		response.FailWithCode(common.ERROR, c)
 		return
 	}
 
-	response.SuccessWithData(u, c)
+	response.Success(c)
 }
 
 // UserInfo

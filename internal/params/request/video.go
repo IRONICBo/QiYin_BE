@@ -8,3 +8,9 @@ type VideoUpdateParams struct {
 	Category int64  `json:"category"`
 	Tags     string `json:"tags"`
 }
+
+type VideoHisParams struct {
+	UserId     string  `json:"user_id"`
+	VideoId    int64   `json:"video_id"`
+	WatchRatio float64 `json:"watch_ratio"`
+}

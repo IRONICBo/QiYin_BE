@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/IRONICBo/QiYin_BE/internal/middleware/rabbitmq"
 	requestparams "github.com/IRONICBo/QiYin_BE/internal/params/request"
 	"log"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -34,6 +36,78 @@ func NewVideoService(c *gin.Context) *VideoServiceImpl {
 	}
 }
 
+func (videoService *VideoServiceImpl) addHisVideoList(videoId int64, curId string, videoList *[]dao.ResVideo, wg *sync.WaitGroup) (*[]dao.ResVideo, error) {
+	defer wg.Done()
+	//调用videoService接口，GetVideo：根据videoId，当前用户id:curId，返回Video类型对象
+	video, err := videoService.GetVideo(videoId, curId)
+	if err != nil {
+		log.Println("this history video is miss")
+		return videoList, err
+	}
+	//将Video类型对象添加到集合中去
+	*videoList = append(*videoList, video)
+	return videoList, nil
+}
+
+func (videoService *VideoServiceImpl) GetHisVideos(userId string) ([]dao.ResVideo, error) {
+	ctx := context.Background()
+	//将int64 userId转换为 string key
+	key := fmt.Sprintf("%s:%s", utils.VideoHis, userId)
+	//step1:查询Redis CollectionUserId,如果key：strUserId存在,则获取集合中全部videoId
+	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
+		if err != nil {
+			log.Printf("history query failed：%v", err)
+			return nil, err
+		}
+		//获取集合中全部videoId
+		videoIdList, err1 := db.GetRedis().SMembers(ctx, key).Result()
+		//如果有问题，说明查询redis失败,返回默认nil,返回错误信息
+		if err1 != nil {
+			log.Printf("CollectionList get values failed：%v", err1)
+			return nil, err1
+		}
+		//提前开辟点赞列表空间
+		videoList := new([]dao.ResVideo)
+		//采用协程并发将Video类型对象添加到集合中去
+		i := len(videoIdList) - 1 //去掉DefaultRedisValue
+		if i == 0 {
+			return *videoList, nil
+		}
+		var wg sync.WaitGroup
+		wg.Add(i)
+		for j := 0; j <= i; j++ {
+			//将string videoId转换为 int64 VideoId
+			videoId, err := strconv.ParseInt(videoIdList[j], 10, 64)
+			if videoId == utils.DefaultRedisValue || err != nil {
+				continue
+			}
+			go videoService.addHisVideoList(videoId, userId, videoList, &wg)
+		}
+		wg.Wait()
+		fmt.Println("后来的", videoList)
+		return *videoList, nil
+	} else {
+		ids, _, err := videoService.videoToRedis(ctx, key, userId)
+		if err != nil {
+			return nil, err
+		}
+		//提前开辟点赞列表空间
+		videoList := new([]dao.ResVideo)
+		i := len(ids)
+		if i == 0 {
+			return *videoList, nil
+		}
+		var wg sync.WaitGroup
+		wg.Add(i)
+		for j := 0; j < i; j++ {
+			videoId, _ := strconv.ParseInt(ids[j], 10, 64)
+			go videoService.addHisVideoList(videoId, userId, videoList, &wg)
+		}
+		wg.Wait()
+		return *videoList, nil
+	}
+}
+
 // GetVideoIdList
 // 通过一个作者id，返回该用户发布的视频id切片数组.
 func (videoService *VideoServiceImpl) GetVideoIdList(userId string) ([]int64, error) {
@@ -43,6 +117,75 @@ func (videoService *VideoServiceImpl) GetVideoIdList(userId string) ([]int64, er
 		return nil, err
 	}
 	return id, nil
+}
+
+func (videoService *VideoServiceImpl) SaveVideoHis(userId string, param *requestparams.VideoHisParams) error {
+	sb := strings.Builder{}
+	sb.WriteString(userId)
+	sb.WriteString(" ")
+	sb.WriteString(strconv.FormatInt(param.VideoId, 10))
+	sb.WriteString(" ")
+	sb.WriteString(strconv.FormatFloat(param.WatchRatio, 'E', -1, 64))
+
+	ctx := context.Background()
+	//将int64 userId转换为 string key
+	key := fmt.Sprintf("%s:%s", utils.VideoHis, userId)
+	//查询Redis CollectionUserId(key:key)是否已经加载过此信息
+	if n, err := db.GetRedis().Exists(ctx, key).Result(); n > 0 {
+		//如果有问题，说明查询redis失败,返回错误信息
+		if err != nil {
+			log.Printf("save history failed：%v", err)
+			return err
+		} //如果加载过此信息key:key，则加入value:videoId
+		if _, err1 := db.GetRedis().SAdd(ctx, key, strconv.FormatInt(param.VideoId, 10)).Result(); err1 != nil {
+			log.Print(err1)
+			return err1
+		} else {
+			rabbitmq.RmqVideoAdd.Publish(sb.String())
+		}
+	} else {
+		_, _, err := videoService.videoToRedis(ctx, key, userId)
+		if err != nil {
+			return err
+		}
+		if _, err2 := db.GetRedis().SAdd(ctx, key, strconv.FormatInt(param.VideoId, 10)).Result(); err2 != nil {
+			return err2
+		} else {
+			rabbitmq.RmqVideoAdd.Publish(sb.String())
+		}
+	}
+
+	return nil
+}
+
+// 同步点赞状态mysql到redis
+func (videoService *VideoServiceImpl) videoToRedis(ctx context.Context, key string, userId string) ([]string, bool, error) {
+	if _, err := db.GetRedis().SAdd(ctx, key, string(rune(utils.DefaultRedisValue))).Result(); err != nil {
+		log.Print(err)
+		db.GetRedis().Del(ctx, key)
+		return []string{}, false, err
+	}
+	_, err := db.GetRedis().Expire(ctx, key, time.Duration(utils.OneMonth)*time.Second).Result()
+	if err != nil {
+		log.Printf("set expire failed")
+		db.GetRedis().Del(ctx, key)
+		return []string{}, false, err
+	}
+	var IdList []string
+	IdList, err = dao.GeVideoHisList(userId)
+	if err != nil {
+		return []string{}, false, err
+	}
+
+	//维护Redis CollectionUserId(key:key)，遍历videoIdList加入
+	for _, id := range IdList {
+		if _, err1 := db.GetRedis().SAdd(ctx, key, id).Result(); err1 != nil {
+			db.GetRedis().Del(ctx, key)
+			log.Println("async failed")
+			return []string{}, false, err1
+		}
+	}
+	return IdList, true, nil
 }
 
 // Search 搜索.
@@ -101,17 +244,17 @@ func (videoService *VideoServiceImpl) GetVideoByUserId(userId string, curUsrId s
 	return resVideos, nil
 }
 
-func (videoService *VideoServiceImpl)UploadVideo(userId string,param *requestparams.VideoUpdateParams) error  {
+func (videoService *VideoServiceImpl) UploadVideo(userId string, param *requestparams.VideoUpdateParams) error {
 
 	newVideo := dao.Video{
-		UserId:userId,
-		PlayUrl:param.PlayUrl,
-		CoverUrl:param.CoverUrl,
-		PublishTime:time.Now(),
-		Title:param.Title,
-		Desc:param.Desc,
-		Category:param.Category,
-		Tags:param.Tags,
+		UserId:      userId,
+		PlayUrl:     param.PlayUrl,
+		CoverUrl:    param.CoverUrl,
+		PublishTime: time.Now(),
+		Title:       param.Title,
+		Desc:        param.Desc,
+		Category:    param.Category,
+		Tags:        param.Tags,
 	}
 	return dao.InsertVideo(&newVideo)
 }

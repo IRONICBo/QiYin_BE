@@ -113,13 +113,11 @@ func (usi *UserServiceImpl) Login(param *requestparams.UserParams) (*responsepar
 }
 
 // register with user.
-func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*responseparams.UserResponse, error) {
-	resp := &responseparams.UserResponse{}
-
+func (usi *UserServiceImpl) Register(param *requestparams.UserParams) error {
 	// Check user
 	has := usi.IsUserExistByName(param.Name)
 	if has {
-		return resp, errors.New("the user has registered")
+		return errors.New("the user has registered")
 	}
 
 	uuid := utils.GenUUID()
@@ -127,23 +125,14 @@ func (usi *UserServiceImpl) Register(param *requestparams.UserParams) (*response
 		Name:      param.Name,
 		Password:  utils.EncryptPassword(param.Password),
 		Id:        uuid,
-		Avatar:    "",
-		Signature: "",
+		Avatar:    "https://th.bing.com/th/id/OIP.g9UbVfyVZX-SfD09JcYr5QHaEK?pid=ImgDet&rs=1",
+		Signature: param.Signature,
 	}
 	if usi.InsertTableUser(&newUser) != true {
-		return resp, errors.New("insert failed")
-	}
-	// Get token
-	token_string, _, err := util.GenerateJwtToken(newUser.Id)
-	if err != nil {
-		return resp, err
+		return errors.New("insert failed")
 	}
 
-	resp = &responseparams.UserResponse{
-		Token:  token_string,
-		UserId: uuid,
-	}
-	return resp, nil
+	return nil
 }
 
 // 获得用户信息  不需要登录  只有点赞操作和评论需要登录.

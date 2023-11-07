@@ -26,7 +26,7 @@ type User struct {
 	//BackgroundImage string `json:"background_image,omitempty"`
 	Signature string `json:"signature,omitempty"`
 	Password  string `json:"password,omitempty"`
-	Style     string `json:"style"`
+	Style     int64  `json:"style"`
 }
 
 // TableName 修改表名映射.

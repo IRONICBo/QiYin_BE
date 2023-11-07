@@ -41,6 +41,7 @@ func main() {
 		dao.Collection{},
 		dao.Video{},
 		dao.Comment{},
+		dao.UserWatchAction{},
 	}
 
 	// drop tables if exist.

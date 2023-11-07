@@ -7,6 +7,7 @@ const (
 	Comment           = "comment"
 	CommentCV         = "commentCV"
 	Search            = "search"
+	VideoHis          = "videoHis"
 	DefaultRedisValue = -1 // 防止赃读
 
 	OneMonth = 60 * 60 * 24 * 30

@@ -29,6 +29,7 @@ func init() {
 	rabbitmq.InitFavoriteRabbitMQ()
 	rabbitmq.InitCommentRabbitMQ()
 	rabbitmq.InitCollectionRabbitMQ()
+	rabbitmq.InitVideoRabbitMQ()
 }
 
 //go:generate go env -w GO111MODULE=on
