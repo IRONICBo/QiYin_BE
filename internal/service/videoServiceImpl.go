@@ -223,9 +223,52 @@ func (videoService *VideoServiceImpl) Search(searchValue string, userId string) 
 	return resVideos, nil
 }
 
+// Search 搜索.
+func (videoService *VideoServiceImpl) SearchTag(category string, userId string) ([]dao.ResVideo, error) {
+	// 查询到相关的videolist + 相关的用户信息
+	videoList, err := dao.GetVideoByCate(category)
+	// 查询失败直接返回
+	if err != nil {
+		log.Printf("Search query failed：%v", err)
+		return videoList, err
+	}
+
+	var resVideos []dao.ResVideo
+	// 得到点赞数和收藏数
+	for _, video := range videoList {
+		res, err := videoService.creatVideo(&video, userId)
+		if err != nil {
+			resVideos = append(resVideos, video)
+		}
+		resVideos = append(resVideos, *res)
+	}
+	return resVideos, nil
+}
+
 func (videoService *VideoServiceImpl) GetVideoByUserId(userId string, curUsrId string) ([]dao.ResVideo, error) {
 	// 查询到相关的videolist + 相关的用户信息
 	videoList, err := dao.GetVideoBuUserId(userId)
+	// 查询失败直接返回
+	if err != nil {
+		log.Printf("query failed：%v", err)
+		return videoList, err
+	}
+
+	var resVideos []dao.ResVideo
+	// 得到点赞数和收藏数
+	for _, video := range videoList {
+		res, err := videoService.creatVideo(&video, curUsrId)
+		if err != nil {
+			resVideos = append(resVideos, video)
+		}
+		resVideos = append(resVideos, *res)
+	}
+	return resVideos, nil
+}
+
+func (videoService *VideoServiceImpl) GetVideos(curUsrId string) ([]dao.ResVideo, error) {
+	// 查询到相关的videolist + 相关的用户信息
+	videoList, err := dao.GetVideos()
 	// 查询失败直接返回
 	if err != nil {
 		log.Printf("query failed：%v", err)

@@ -72,8 +72,10 @@ func InitRouter() *gin.Engine {
 		video := apiv1.Group("/video/")
 		{
 			video.GET("/search", api.Search)
+			video.GET("/searchTag", api.SearchTag)
 			video.GET("/hots", api.GetHots)
 			video.GET("/list", api.GetVideos)
+			video.GET("/lists", api.GetVideosList)
 			video.POST("/upload", jwt.Auth(), api.UploadVideo)
 			video.POST("/save", api.SaveVideoHis)
 			video.GET("/getHistory", jwt.Auth(), api.GetHistory)

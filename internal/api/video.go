@@ -26,7 +26,30 @@ func Search(c *gin.Context) {
 	svc := service.NewVideoService(c)
 	u, err := svc.Search(searchValue, userId)
 	if err != nil {
-		log.Debug("user doesn't exit", err)
+		log.Debug("video doesn't exit", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+	response.SuccessWithData(u, c)
+}
+
+// SearchTag
+// @Tags video
+// @Summary SearchTag
+// @Description search videos by tag
+// @Produce application/json
+// @Param searchValue query string true "searchValue"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/video/searchTag [get].
+func SearchTag(c *gin.Context) {
+	searchValue := c.Query("tag")
+
+	userId := jwt.GetUserId(c)
+
+	svc := service.NewVideoService(c)
+	u, err := svc.SearchTag(searchValue, userId)
+	if err != nil {
+		log.Debug("video doesn't exit", err)
 		response.FailWithCode(common.ERROR, c)
 		return
 	}
@@ -48,6 +71,29 @@ func GetVideos(c *gin.Context) {
 
 	svc := service.NewVideoService(c)
 	u, err := svc.GetVideoByUserId(userId, curId)
+
+	if err != nil {
+		log.Debug("video doesn't exit", err)
+		response.FailWithCode(common.ERROR, c)
+		return
+	}
+	response.SuccessWithData(u, c)
+}
+
+// GetVideosList
+// @Tags video
+// @Summary GetVideosList
+// @Description get videos by userId
+// @Produce application/json
+// @Param searchValue query string true "searchValue"
+// @Success 200 {object}  response.Response{msg=string} "Success"
+// @Router /api/v1/video/list [get].
+func GetVideosList(c *gin.Context) {
+	//是否登录
+	curId := jwt.GetUserId(c)
+
+	svc := service.NewVideoService(c)
+	u, err := svc.GetVideos(curId)
 
 	if err != nil {
 		log.Debug("video doesn't exit", err)

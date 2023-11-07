@@ -16,4 +16,5 @@ type VideoService interface {
 	SaveVideoHis(userId string, param *requestparams.VideoHisParams) error
 	UploadVideo(userId string, param *requestparams.VideoUpdateParams) error
 	GetVideoByUserId(userId string, curUsrId string) ([]dao.ResVideo, error)
+	SearchTag(category string, userId string) ([]dao.ResVideo, error)
 }
