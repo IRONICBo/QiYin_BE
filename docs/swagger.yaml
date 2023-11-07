@@ -41,11 +41,38 @@ definitions:
       style:
         type: string
     type: object
+  requestparams.UserInfoParams:
+    properties:
+      avatar:
+        type: string
+      name:
+        type: string
+      signature:
+        type: string
+      style:
+        type: string
+    type: object
   requestparams.UserParams:
     properties:
       name:
         type: string
       password:
+        type: string
+    type: object
+  requestparams.VideoUpdateParams:
+    properties:
+      category:
+        type: integer
+      cover_url:
+        type: string
+      desc:
+        type: string
+      play_url:
+        type: string
+      tags:
+        type: string
+      title:
+        description: 视频名
         type: string
     type: object
   response.Response:
@@ -386,6 +413,31 @@ paths:
       summary: SetStyle
       tags:
       - user
+  /api/v1/setUser:
+    post:
+      description: update user info
+      parameters:
+      - description: UserInfoParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.UserInfoParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: SetUser
+      tags:
+      - user
   /api/v1/userinfo:
     get:
       description: get userinfo by id
@@ -434,6 +486,30 @@ paths:
       summary: GetHots
       tags:
       - video
+  /api/v1/video/list:
+    get:
+      description: get videos by userId
+      parameters:
+      - description: searchValue
+        in: query
+        name: searchValue
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetVideos
+      tags:
+      - video
   /api/v1/video/search:
     get:
       description: search videos by text
@@ -456,6 +532,31 @@ paths:
                   type: string
               type: object
       summary: Search
+      tags:
+      - video
+  /api/v1/video/upload:
+    post:
+      description: hot list
+      parameters:
+      - description: VideoUpdateParams
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/requestparams.VideoUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: UploadVideo
       tags:
       - video
 securityDefinitions:

@@ -574,6 +574,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/setUser": {
+            "post": {
+                "description": "update user info",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "SetUser",
+                "parameters": [
+                    {
+                        "description": "UserInfoParams",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestparams.UserInfoParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/userinfo": {
             "get": {
                 "description": "get userinfo by id",
@@ -656,6 +699,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/video/list": {
+            "get": {
+                "description": "get videos by userId",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "GetVideos",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "searchValue",
+                        "name": "searchValue",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/video/search": {
             "get": {
                 "description": "search videos by text",
@@ -673,6 +757,49 @@ const docTemplate = `{
                         "name": "searchValue",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/upload": {
+            "post": {
+                "description": "hot list",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "UploadVideo",
+                "parameters": [
+                    {
+                        "description": "VideoUpdateParams",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestparams.VideoUpdateParams"
+                        }
                     }
                 ],
                 "responses": {
@@ -763,6 +890,23 @@ const docTemplate = `{
                 }
             }
         },
+        "requestparams.UserInfoParams": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                }
+            }
+        },
         "requestparams.UserParams": {
             "type": "object",
             "properties": {
@@ -770,6 +914,30 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "requestparams.VideoUpdateParams": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "integer"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "play_url": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "string"
+                },
+                "title": {
+                    "description": "视频名",
                     "type": "string"
                 }
             }
