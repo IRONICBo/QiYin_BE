@@ -85,9 +85,8 @@ func GetVideos(c *gin.Context) {
 // @Summary GetVideosList
 // @Description get videos by userId
 // @Produce application/json
-// @Param searchValue query string true "searchValue"
 // @Success 200 {object}  response.Response{msg=string} "Success"
-// @Router /api/v1/video/list [get].
+// @Router /api/v1/video/lists [get].
 func GetVideosList(c *gin.Context) {
 	//是否登录
 	curId := jwt.GetUserId(c)

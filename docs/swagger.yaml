@@ -543,6 +543,24 @@ paths:
                 msg:
                   type: string
               type: object
+      summary: GetVideos
+      tags:
+      - video
+  /api/v1/video/lists:
+    get:
+      description: get videos by userId
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
       summary: GetVideosList
       tags:
       - video

@@ -751,7 +751,7 @@ const docTemplate = `{
                 "tags": [
                     "video"
                 ],
-                "summary": "GetVideosList",
+                "summary": "GetVideos",
                 "parameters": [
                     {
                         "type": "string",
@@ -761,6 +761,38 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/video/lists": {
+            "get": {
+                "description": "get videos by userId",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "video"
+                ],
+                "summary": "GetVideosList",
                 "responses": {
                     "200": {
                         "description": "Success",
