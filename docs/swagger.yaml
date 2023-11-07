@@ -546,6 +546,24 @@ paths:
       summary: GetVideos
       tags:
       - video
+  /api/v1/video/lists:
+    get:
+      description: get videos by userId
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: GetVideosList
+      tags:
+      - video
   /api/v1/video/save:
     post:
       description: video history
@@ -593,6 +611,30 @@ paths:
                   type: string
               type: object
       summary: Search
+      tags:
+      - video
+  /api/v1/video/searchTag:
+    get:
+      description: search videos by tag
+      parameters:
+      - description: searchValue
+        in: query
+        name: searchValue
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: SearchTag
       tags:
       - video
   /api/v1/video/upload:
